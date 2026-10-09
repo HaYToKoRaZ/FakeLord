@@ -94,8 +94,13 @@ namespace FakelordUI.Core
 
             // Tray Menü
             { "TrayShow", ("Pencereyi Göster", "Show FakeLord") },
-            { "TrayRecentGames", ("Son Oynanan Oyunlar:", "Recent Games:") },
+            { "TrayRecentGames", ("Son Oynanan Oyunlar", "Recent Games") },
+            { "TrayFavorites", ("Favori Oyunlar", "Favorite Games") },
+            { "TrayNoFavorites", ("(Henüz favori oyun yok)", "(No favorite games)") },
             { "TrayNoRecent", ("(Henüz oyun oynanmadı)", "(No recent games)") },
+            { "TrayStatusActive", ("🟢 Çalışıyor: {0}", "🟢 Active: {0}") },
+            { "TrayStatusIdle", ("⚪ Beklemede (Aktif Oyun Yok)", "⚪ Idle (No Active Game)") },
+            { "TrayWebsite", ("Resmi Web Sitesi", "Official Website") },
             { "TrayStopCurrent", ("⏹ Aktif Oyunu Durdur", "⏹ Stop Active Game") },
             { "TrayExit", ("Çıkış", "Exit") },
         };

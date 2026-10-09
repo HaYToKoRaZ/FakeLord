@@ -1427,66 +1427,153 @@ namespace FakelordUI
             try
             {
                 var menu = new Forms.ContextMenuStrip();
+                menu.Renderer = new DarkTrayMenuRenderer();
+                menu.ShowImageMargin = false;
+                menu.ShowCheckMargin = false;
+                menu.BackColor = Drawing.Color.FromArgb(14, 19, 31);
+                menu.Font = new Drawing.Font("Segoe UI", 9.5f, Drawing.FontStyle.Regular);
+                menu.Padding = new Forms.Padding(4, 5, 4, 5);
 
-                // 1. Göster / Aç
-                var showItem = new Forms.ToolStripMenuItem(LocalizationManager.Get("TrayShow"));
-                showItem.Font = new Drawing.Font(showItem.Font, Drawing.FontStyle.Bold);
-                showItem.Click += (s, e) => BringWindowToFront();
-                menu.Items.Add(showItem);
+                // 1. Marka & Versiyon Başlığı (Tıklanırsa pencereyi öne getirir)
+                var brandItem = new Forms.ToolStripMenuItem("🎮 FakeLord v1.4");
+                brandItem.Tag = "header_brand";
+                brandItem.Font = new Drawing.Font("Segoe UI", 9.5f, Drawing.FontStyle.Bold);
+                brandItem.Padding = new Forms.Padding(12, 5, 12, 4);
+                brandItem.ToolTipText = LocalizationManager.Get("TrayShow");
+                brandItem.Click += (s, e) => BringWindowToFront();
+                menu.Items.Add(brandItem);
+
+                // 2. Canlı Oyun Durumu
+                if (_isPlaying)
+                {
+                    string activeTitle = _selectedGame?.Title ?? GhostProcessManager.CurrentRunningGame ?? "Game";
+                    var statusItem = new Forms.ToolStripMenuItem(LocalizationManager.Get("TrayStatusActive", activeTitle));
+                    statusItem.Tag = "status_active";
+                    statusItem.Font = new Drawing.Font("Segoe UI", 9.0f, Drawing.FontStyle.Bold);
+                    statusItem.Padding = new Forms.Padding(12, 3, 12, 3);
+                    statusItem.Click += (s, e) => BringWindowToFront();
+                    menu.Items.Add(statusItem);
+
+                    var stopItem = new Forms.ToolStripMenuItem(LocalizationManager.Get("TrayStopCurrent"));
+                    stopItem.Tag = "stop_btn";
+                    stopItem.Font = new Drawing.Font("Segoe UI", 9.0f, Drawing.FontStyle.Bold);
+                    stopItem.Padding = new Forms.Padding(12, 4, 12, 4);
+                    stopItem.Click += (s, e) =>
+                    {
+                        Dispatcher.Invoke(() => BtnStop_Click(this, new RoutedEventArgs()));
+                    };
+                    menu.Items.Add(stopItem);
+                }
+                else
+                {
+                    var idleItem = new Forms.ToolStripMenuItem(LocalizationManager.Get("TrayStatusIdle")) { Enabled = false };
+                    idleItem.Font = new Drawing.Font("Segoe UI", 8.5f, Drawing.FontStyle.Regular);
+                    idleItem.Padding = new Forms.Padding(12, 3, 12, 3);
+                    menu.Items.Add(idleItem);
+                }
 
                 menu.Items.Add(new Forms.ToolStripSeparator());
 
-                // 2. Son Oynanan Oyunlar (Son 3 oyun)
-                var headerItem = new Forms.ToolStripMenuItem(LocalizationManager.Get("TrayRecentGames")) { Enabled = false };
-                menu.Items.Add(headerItem);
+                // 3. ⭐ Favori Oyunlar Alt Menüsü
+                var favSubMenu = new Forms.ToolStripMenuItem($"⭐ {LocalizationManager.Get("TrayFavorites")}");
+                favSubMenu.Padding = new Forms.Padding(12, 4, 12, 4);
+                StyleDropDown(favSubMenu.DropDown, menu.Renderer);
 
-                var top3Recent = IniManager.RecentGames.Take(3).ToList();
-                if (top3Recent.Count == 0 && !string.IsNullOrWhiteSpace(IniManager.LastGame))
+                var favList = IniManager.Favorites.ToList();
+                if (favList.Count > 0)
                 {
-                    top3Recent.Add(IniManager.LastGame);
-                }
-
-                if (top3Recent.Count > 0)
-                {
-                    foreach (var exe in top3Recent)
+                    foreach (var exe in favList)
                     {
                         var matchingGame = _allGames.FirstOrDefault(g => g.ExeName.Equals(exe, StringComparison.OrdinalIgnoreCase));
                         string gameTitle = matchingGame?.Title ?? exe.Replace(".exe", "", StringComparison.OrdinalIgnoreCase);
 
                         var gameItem = new Forms.ToolStripMenuItem($"▶ {gameTitle}");
-                        gameItem.Click += (s, e) =>
-                        {
-                            Dispatcher.Invoke(() =>
-                            {
-                                LaunchGameFromTray(exe);
-                            });
-                        };
-                        menu.Items.Add(gameItem);
+                        gameItem.Padding = new Forms.Padding(12, 4, 12, 4);
+                        gameItem.Click += (s, e) => Dispatcher.Invoke(() => LaunchGameFromTray(exe));
+                        favSubMenu.DropDownItems.Add(gameItem);
                     }
                 }
                 else
                 {
-                    menu.Items.Add(new Forms.ToolStripMenuItem(LocalizationManager.Get("TrayNoRecent")) { Enabled = false });
+                    var emptyFav = new Forms.ToolStripMenuItem(LocalizationManager.Get("TrayNoFavorites")) { Enabled = false };
+                    emptyFav.Padding = new Forms.Padding(12, 4, 12, 4);
+                    favSubMenu.DropDownItems.Add(emptyFav);
                 }
+                menu.Items.Add(favSubMenu);
+
+                // 4. 🕒 Son Oynanan Oyunlar Alt Menüsü
+                var recentSubMenu = new Forms.ToolStripMenuItem($"🕒 {LocalizationManager.Get("TrayRecentGames")}");
+                recentSubMenu.Padding = new Forms.Padding(12, 4, 12, 4);
+                StyleDropDown(recentSubMenu.DropDown, menu.Renderer);
+
+                var recentList = IniManager.RecentGames.Take(5).ToList();
+                if (recentList.Count == 0 && !string.IsNullOrWhiteSpace(IniManager.LastGame))
+                {
+                    recentList.Add(IniManager.LastGame);
+                }
+
+                if (recentList.Count > 0)
+                {
+                    foreach (var exe in recentList)
+                    {
+                        var matchingGame = _allGames.FirstOrDefault(g => g.ExeName.Equals(exe, StringComparison.OrdinalIgnoreCase));
+                        string gameTitle = matchingGame?.Title ?? exe.Replace(".exe", "", StringComparison.OrdinalIgnoreCase);
+
+                        var gameItem = new Forms.ToolStripMenuItem($"▶ {gameTitle}");
+                        gameItem.Padding = new Forms.Padding(12, 4, 12, 4);
+                        gameItem.Click += (s, e) => Dispatcher.Invoke(() => LaunchGameFromTray(exe));
+                        recentSubMenu.DropDownItems.Add(gameItem);
+                    }
+                }
+                else
+                {
+                    var emptyRecent = new Forms.ToolStripMenuItem(LocalizationManager.Get("TrayNoRecent")) { Enabled = false };
+                    emptyRecent.Padding = new Forms.Padding(12, 4, 12, 4);
+                    recentSubMenu.DropDownItems.Add(emptyRecent);
+                }
+                menu.Items.Add(recentSubMenu);
 
                 menu.Items.Add(new Forms.ToolStripSeparator());
 
-                // 3. Durdur
-                var stopItem = new Forms.ToolStripMenuItem(LocalizationManager.Get("TrayStopCurrent"));
-                stopItem.Enabled = _isPlaying;
-                stopItem.Click += (s, e) =>
+                // 5. 🗔 Pencereyi Göster
+                var showItem = new Forms.ToolStripMenuItem($"🗔 {LocalizationManager.Get("TrayShow")}");
+                showItem.Font = new Drawing.Font("Segoe UI", 9.5f, Drawing.FontStyle.Bold);
+                showItem.Padding = new Forms.Padding(12, 4, 12, 4);
+                showItem.Click += (s, e) => BringWindowToFront();
+                menu.Items.Add(showItem);
+
+                // 6. ⚙️ Ayarlar
+                var settingsItem = new Forms.ToolStripMenuItem($"⚙️ {LocalizationManager.Get("SettingsTitle")}");
+                settingsItem.Padding = new Forms.Padding(12, 4, 12, 4);
+                settingsItem.Click += (s, e) =>
                 {
                     Dispatcher.Invoke(() =>
                     {
-                        BtnStop_Click(this, new RoutedEventArgs());
+                        BringWindowToFront();
+                        BtnSettings_Click(this, new RoutedEventArgs());
                     });
                 };
-                menu.Items.Add(stopItem);
+                menu.Items.Add(settingsItem);
+
+                // 7. 🌐 Resmi Web Sitesi
+                var websiteItem = new Forms.ToolStripMenuItem($"🌐 {LocalizationManager.Get("TrayWebsite")}");
+                websiteItem.Padding = new Forms.Padding(12, 4, 12, 4);
+                websiteItem.Click += (s, e) =>
+                {
+                    try
+                    {
+                        Process.Start(new ProcessStartInfo { FileName = "https://haytool.online/FakeLord/", UseShellExecute = true });
+                    }
+                    catch { }
+                };
+                menu.Items.Add(websiteItem);
 
                 menu.Items.Add(new Forms.ToolStripSeparator());
 
-                // 4. Çıkış
-                var exitItem = new Forms.ToolStripMenuItem(LocalizationManager.Get("TrayExit"));
+                // 8. ❌ Çıkış
+                var exitItem = new Forms.ToolStripMenuItem($"❌ {LocalizationManager.Get("TrayExit")}");
+                exitItem.Tag = "stop_btn";
+                exitItem.Padding = new Forms.Padding(12, 5, 12, 5);
                 exitItem.Click += (s, e) =>
                 {
                     _isExplicitExit = true;
@@ -1499,6 +1586,20 @@ namespace FakelordUI
                 _notifyIcon.ContextMenuStrip = menu;
             }
             catch { }
+        }
+
+        private static void StyleDropDown(Forms.ToolStripDropDown dropDown, Forms.ToolStripRenderer renderer)
+        {
+            if (dropDown == null) return;
+            dropDown.Renderer = renderer;
+            if (dropDown is Forms.ToolStripDropDownMenu menuDrop)
+            {
+                menuDrop.ShowImageMargin = false;
+                menuDrop.ShowCheckMargin = false;
+            }
+            dropDown.BackColor = Drawing.Color.FromArgb(14, 19, 31);
+            dropDown.Font = new Drawing.Font("Segoe UI", 9.5f, Drawing.FontStyle.Regular);
+            dropDown.Padding = new Forms.Padding(4, 5, 4, 5);
         }
 
         private void LaunchGameFromTray(string exeName)
@@ -1626,7 +1727,7 @@ namespace FakelordUI
                 if (string.IsNullOrWhiteSpace(tagName)) return;
 
                 string cleanRemote = tagName.Trim().TrimStart('v', 'V');
-                Version currentVer = new Version(1, 3, 0);
+                Version currentVer = new Version(1, 4, 0);
 
                 if (Version.TryParse(cleanRemote, out var remoteVer) || 
                     Version.TryParse(cleanRemote + ".0", out remoteVer))
