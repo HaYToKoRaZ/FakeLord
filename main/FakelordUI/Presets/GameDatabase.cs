@@ -34,7 +34,15 @@ namespace FakelordUI.Presets
                     return $"https://cdn.cloudflare.steamstatic.com/steam/apps/{SteamAppId}/header.jpg";
 
                 if (!string.IsNullOrEmpty(Id) && !string.IsNullOrEmpty(IconHash))
+                {
+                    string localIcon = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Cache", "Icons", $"{Id}_{IconHash}.png");
+                    if (File.Exists(localIcon))
+                    {
+                        return new Uri(localIcon).AbsoluteUri;
+                    }
+                    _ = GameDatabase.EnsureIconCachedAsync(Id, IconHash);
                     return $"https://cdn.discordapp.com/app-icons/{Id}/{IconHash}.png?size=256";
+                }
 
                 if (!string.IsNullOrEmpty(IniManager.CustomGameImage))
                     return IniManager.CustomGameImage;
@@ -46,14 +54,76 @@ namespace FakelordUI.Presets
 
     public static class GameDatabase
     {
-        private static readonly HttpClient _httpClient = new HttpClient();
-        private static readonly string CacheFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "discord_detectable_cache.json");
+        private static readonly HttpClient _httpClient;
+        public static string DataDirectory => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
+        private static string CacheFile
+        {
+            get
+            {
+                string dataPath = Path.Combine(DataDirectory, "discord_detectable_cache.json");
+                if (File.Exists(dataPath)) return dataPath;
+                string rootPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "discord_detectable_cache.json");
+                if (File.Exists(rootPath)) return rootPath;
+                return dataPath;
+            }
+        }
+
+        static GameDatabase()
+        {
+            _httpClient = new HttpClient();
+            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+        }
+
+        public static async Task EnsureIconCachedAsync(string id, string iconHash)
+        {
+            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(iconHash)) return;
+
+            try
+            {
+                string localDir = Path.Combine(DataDirectory, "Cache", "Icons");
+                Directory.CreateDirectory(localDir);
+                string localFile = Path.Combine(localDir, $"{id}_{iconHash}.png");
+                if (File.Exists(localFile)) return;
+
+                string url = $"https://cdn.discordapp.com/app-icons/{id}/{iconHash}.png?size=256";
+                using var req = new HttpRequestMessage(HttpMethod.Get, url);
+                req.Headers.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+
+                using var res = await _httpClient.SendAsync(req);
+                if (res.IsSuccessStatusCode)
+                {
+                    byte[] bytes = await res.Content.ReadAsByteArrayAsync();
+                    await File.WriteAllBytesAsync(localFile, bytes);
+                }
+            }
+            catch { }
+        }
+
+        public static void PrecachePopularIconsAsync()
+        {
+            Task.Run(async () =>
+            {
+                var popular = GetDefaultPopularGames();
+                foreach (var g in popular)
+                {
+                    if (!string.IsNullOrEmpty(g.Id) && !string.IsNullOrEmpty(g.IconHash))
+                    {
+                        await EnsureIconCachedAsync(g.Id, g.IconHash);
+                    }
+                }
+            });
+        }
 
         // Bilinen popüler oyunların Steam App ID veya doğrudan görsel bağlantıları
         private static readonly Dictionary<string, (string SteamId, string CustomUrl)> WellKnownGames = new(StringComparer.OrdinalIgnoreCase)
         {
+            { "win64/cs2.exe", ("730", "") },
             { "cs2.exe", ("730", "") },
             { "csgo.exe", ("730", "") },
+            { "league of legends.exe", ("", "pack://application:,,,/lol.png") },
+            { "leagueclientux.exe", ("", "pack://application:,,,/lol.png") },
+            { "win64/valorant-win64-shipping.exe", ("", "pack://application:,,,/valorant.png") },
+            { "valorant-win64-shipping.exe", ("", "pack://application:,,,/valorant.png") },
             { "gta5.exe", ("271590", "") },
             { "gta_sa.exe", ("12120", "") },
             { "cyberpunk2077.exe", ("1091500", "") },
@@ -80,18 +150,13 @@ namespace FakelordUI.Presets
             { "payday2_win32_release.exe", ("218620", "") },
             { "terraria.exe", ("105600", "") },
             { "fallout4.exe", ("377160", "") },
-            { "skyrim.exe", ("72850", "") },
-            { "valorant-win64-shipping.exe", ("", "https://images.contentstack.io/v3/assets/blt0eb2a2986bbfbe7a/blt7204646ec5607590/6447fd7d70cfd076d333f269/VAL_Ep7_A3_CG_horizontal_textless_1920x1080.jpg") },
-            { "win64/valorant-win64-shipping.exe", ("", "https://images.contentstack.io/v3/assets/blt0eb2a2986bbfbe7a/blt7204646ec5607590/6447fd7d70cfd076d333f269/VAL_Ep7_A3_CG_horizontal_textless_1920x1080.jpg") },
-            { "league of legends.exe", ("", "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/c31562ae0eb49a0d81065ea07e6022e37e9fb35d-1920x1080.jpg") },
-            { "leagueclientux.exe", ("", "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/c31562ae0eb49a0d81065ea07e6022e37e9fb35d-1920x1080.jpg") },
-            { "minecraft.exe", ("", "https://www.minecraft.net/content/dam/games/minecraft/key-art/Minecraft-hero-image-1280x720.jpg") },
-            { "javaw.exe", ("", "https://www.minecraft.net/content/dam/games/minecraft/key-art/Minecraft-hero-image-1280x720.jpg") },
-            { "fortniteclient-win64-shipping.exe", ("", "https://cdn2.unrealengine.com/social-image-chapter4-s3-3840x2160-d35919020e96.jpg") }
+            { "skyrim.exe", ("72850", "") }
         };
 
         public static List<GameItem> LoadCachedGames()
         {
+            PrecachePopularIconsAsync();
+
             if (File.Exists(CacheFile))
             {
                 try
@@ -110,10 +175,12 @@ namespace FakelordUI.Presets
         {
             try
             {
-                _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
                 string json = await _httpClient.GetStringAsync("https://discord.com/api/v9/applications/detectable");
+                try { Directory.CreateDirectory(DataDirectory); } catch { }
                 await File.WriteAllTextAsync(CacheFile, json);
-                return ParseDiscordDetectable(json);
+                var games = ParseDiscordDetectable(json);
+                PrecachePopularIconsAsync();
+                return games;
             }
             catch (Exception)
             {
@@ -191,14 +258,14 @@ namespace FakelordUI.Presets
             }
             catch { }
 
-            // Popüler varsayılan oyunları en üste veya listeye ekle
+            // Popüler ve rekabetçi oyunları TÜM OYUNLAR listesinin en başına yerleştir (kullanıcı isteği)
             var defaults = GetDefaultPopularGames();
-            foreach (var d in defaults)
+            for (int i = defaults.Count - 1; i >= 0; i--)
             {
-                if (!games.Any(g => g.ExeName.Equals(d.ExeName, StringComparison.OrdinalIgnoreCase)))
-                {
-                    games.Insert(0, d);
-                }
+                var d = defaults[i];
+                games.RemoveAll(g => g.ExeName.Equals(d.ExeName, StringComparison.OrdinalIgnoreCase) ||
+                                     g.Title.Equals(d.Title, StringComparison.OrdinalIgnoreCase));
+                games.Insert(0, d);
             }
 
             return games.Count > 0 ? games : defaults;
@@ -210,27 +277,27 @@ namespace FakelordUI.Presets
             {
                 new GameItem 
                 { 
-                    Id = "700136079562375258", 
-                    Title = "VALORANT", 
-                    ExeName = "win64/valorant-win64-shipping.exe", 
-                    IconHash = "11f81959f4fdd76ca6c39c59eac256c1",
-                    CustomImageUrl = "https://images.contentstack.io/v3/assets/blt0eb2a2986bbfbe7a/blt7204646ec5607590/6447fd7d70cfd076d333f269/VAL_Ep7_A3_CG_horizontal_textless_1920x1080.jpg"
+                    Id = "791942006378823700", 
+                    Title = "Counter-Strike 2", 
+                    ExeName = "win64/cs2.exe", 
+                    SteamAppId = "730", 
+                    IconHash = "d9fa0e882a1705e3a35b1c97a8ecdc93" 
                 },
                 new GameItem 
                 { 
                     Id = "1402418696126992445", 
                     Title = "League of Legends", 
                     ExeName = "league of legends.exe", 
-                    IconHash = "7c99428541032ac02ec6981d88b78fb7",
-                    CustomImageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/c31562ae0eb49a0d81065ea07e6022e37e9fb35d-1920x1080.jpg"
+                    CustomImageUrl = "pack://application:,,,/lol.png",
+                    IconHash = "7c99428541032ac02ec6981d88b78fb7"
                 },
                 new GameItem 
                 { 
-                    Id = "791942006378823700", 
-                    Title = "Counter-Strike 2", 
-                    ExeName = "cs2.exe", 
-                    SteamAppId = "730", 
-                    IconHash = "d9fa0e882a1705e3a35b1c97a8ecdc93" 
+                    Id = "700136079562375258", 
+                    Title = "VALORANT", 
+                    ExeName = "win64/valorant-win64-shipping.exe", 
+                    CustomImageUrl = "pack://application:,,,/valorant.png",
+                    IconHash = "11f81959f4fdd76ca6c39c59eac256c1"
                 },
                 new GameItem 
                 { 
@@ -242,23 +309,23 @@ namespace FakelordUI.Presets
                 },
                 new GameItem 
                 { 
-                    Id = "432980957394370572", 
+                    Id = "1402418703554842694", 
                     Title = "Fortnite", 
                     ExeName = "fortniteclient-win64-shipping.exe", 
-                    CustomImageUrl = "https://cdn2.unrealengine.com/social-image-chapter4-s3-3840x2160-d35919020e96.jpg" 
+                    IconHash = "c1864b38910c209afd5bf6423b672022" 
                 },
                 new GameItem 
                 { 
-                    Id = "435443705055346690", 
+                    Id = "1402418491272986635", 
                     Title = "Minecraft", 
-                    ExeName = "minecraft.exe", 
-                    CustomImageUrl = "https://www.minecraft.net/content/dam/games/minecraft/key-art/Minecraft-hero-image-1280x720.jpg" 
+                    ExeName = "content/minecraft.exe", 
+                    IconHash = "166fbad351ecdd02d11a3b464748f66b" 
                 },
                 new GameItem 
                 { 
                     Id = "541738403230777351", 
                     Title = "Apex Legends", 
-                    ExeName = "r5apex.exe", 
+                    ExeName = "apex/r5apex.exe", 
                     SteamAppId = "1172470" 
                 },
                 new GameItem 
@@ -293,11 +360,11 @@ namespace FakelordUI.Presets
                 },
                 new GameItem 
                 { 
-                    Id = "533413476366811136", 
+                    Id = "1402418648332898466", 
                     Title = "Red Dead Redemption 2", 
-                    ExeName = "RDR2.exe", 
+                    ExeName = "red dead redemption 2/rdr2.exe", 
                     SteamAppId = "1174180", 
-                    IconHash = "3ca6a4b11f75323cb1d4f64700d6194b" 
+                    IconHash = "86479a5f873535f5b432c738a0bb400c" 
                 },
                 new GameItem 
                 { 
@@ -327,7 +394,7 @@ namespace FakelordUI.Presets
                 { 
                     Id = "889506696146681907", 
                     Title = "Elden Ring", 
-                    ExeName = "eldenring.exe", 
+                    ExeName = "game/eldenring.exe", 
                     SteamAppId = "1245620", 
                     IconHash = "4bbf319e71ec269894e6fe8423f81e3a" 
                 },
@@ -374,10 +441,11 @@ namespace FakelordUI.Presets
                 string lower = exeName.ToLowerInvariant();
                 string fileName = Path.GetFileName(lower);
 
-                // 2. Yardımcı/çökme raporlayıcı süreçleri filtrele
+                // 2. Yardımcı/çökme raporlayıcı ve bölgesel istemci (Garena) süreçlerini filtrele
                 if (fileName.Contains("crash") || fileName.Contains("report") || fileName.Contains("unins") || 
                     fileName.Contains("update") || fileName.Contains("eac") || fileName.Contains("battleye") ||
-                    fileName.Contains("easyanticheat") || fileName.Contains("anticheat"))
+                    fileName.Contains("easyanticheat") || fileName.Contains("anticheat") ||
+                    lower.Contains("garena"))
                 {
                     score -= 100;
                 }

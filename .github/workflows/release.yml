@@ -38,6 +38,11 @@ jobs:
 
       - name: Build Windows Application (Self-Contained Single-File)
         run: |
+          $tag = "${{ github.ref_name }}"
+          if ([string]::IsNullOrWhiteSpace($tag)) { $tag = "v1.2.0" }
+          $rawVer = $tag.TrimStart('v')
+          if ($rawVer -notmatch '^\d+\.\d+\.\d+') { $rawVer = "$rawVer.0" }
+
           dotnet publish main\FakelordUI\FakelordUI.csproj `
             -c Release `
             -r win-x64 `
@@ -47,14 +52,17 @@ jobs:
             -p:EnableCompressionInSingleFile=true `
             -p:DebugType=None `
             -p:DebugSymbols=false `
+            -p:Version=$rawVer `
+            -p:AssemblyVersion=$rawVer `
+            -p:FileVersion=$rawVer `
             -o portable-dist
           if ($LASTEXITCODE -ne 0) { throw "FakelordUI derlemesi başarısız oldu." }
           $exe = Join-Path $PWD 'portable-dist\FakelordUI.exe'
           if (-not (Test-Path $exe)) { throw "Derlenmiş FakelordUI.exe bulunamadı." }
 
-          # Runners/HaYTooL.exe şablonunun mevcut olduğundan emin ol
-          New-Item -ItemType Directory -Force -Path portable-dist\Runners | Out-Null
-          Copy-Item -Path "main\FakelordUI\RunnersTemplate\HaYTooL.exe" -Destination "portable-dist\Runners\HaYTooL.exe" -Force
+          # Data\Runners\HaYTooL.exe şablonunun mevcut olduğundan emin ol
+          New-Item -ItemType Directory -Force -Path portable-dist\Data\Runners | Out-Null
+          Copy-Item -Path "main\FakelordUI\RunnersTemplate\HaYTooL.exe" -Destination "portable-dist\Data\Runners\HaYTooL.exe" -Force
 
       - name: Build Windows Portable ZIP
         run: |

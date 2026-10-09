@@ -18,12 +18,29 @@
     <Resource Include="icon.png" />
     <Resource Include="flag_tr.png" />
     <Resource Include="flag_gb.png" />
+    <Resource Include="lol.png" />
+    <Resource Include="valorant.png" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="RunnersTemplate\HaYTooL.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <Link>Runners\HaYTooL.exe</Link>
+    </None>
+    <None Include="app.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="icon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="lol.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="valorant.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Cache\Icons\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <EmbeddedResource Include="RunnersTemplate\HaYTooL.exe" />
   </ItemGroup>

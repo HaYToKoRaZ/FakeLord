@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using FakelordUI.Core;
 using FakelordUI.Presets;
+using System.Windows.Interop;
 using Forms = System.Windows.Forms;
 using Drawing = System.Drawing;
 using Color = System.Windows.Media.Color;
@@ -23,6 +24,9 @@ using Application = System.Windows.Application;
 using Button = System.Windows.Controls.Button;
 using Cursors = System.Windows.Input.Cursors;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
+using Image = System.Windows.Controls.Image;
+using Orientation = System.Windows.Controls.Orientation;
+using Size = System.Windows.Size;
 
 namespace FakelordUI
 {
@@ -32,7 +36,7 @@ namespace FakelordUI
         private List<GameItem> _currentViewGames = new();
         private GameItem? _selectedGame;
         private bool _isPlaying = false;
-        private string _activeTab = "Popular"; // Popular, All, SteamTop, SteamInstalled
+        private string _activeTab = "All"; // All, SteamTop, SteamInstalled
         private bool _isUpdatingSearchText = false;
         private bool _isPopulatingThemes = false;
         private bool _isPopulatingSettingsThemes = false;
@@ -77,6 +81,32 @@ namespace FakelordUI
             RestoreWindowGeometry();
             SetupSystemTray();
 
+            // HaYTooL (Oyun) açıldığında FakelordUI yok olsun, kapandığında geri gelsin (Hand-off / Yer Değiştirme)
+            GhostProcessManager.GameStarted += () =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    this.Hide();
+                });
+            };
+
+            GhostProcessManager.GameExited += () =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    _isPlaying = false;
+                    BtnStart.IsEnabled = true;
+                    BtnStop.IsEnabled = false;
+
+                    StatusMessage.Text = LocalizationManager.Get("StoppedStatusMsg");
+                    StatusMessage.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#9CA3AF"));
+                    PreviewStatus.Text = LocalizationManager.Get("StoppedStatus");
+                    UpdateTrayContextMenu();
+
+                    BringWindowToFront();
+                });
+            };
+
             PreviewKeyDown += MainWindow_PreviewKeyDown;
             Closing += MainWindow_Closing;
             LocationChanged += MainWindow_LocationChanged;
@@ -86,6 +116,11 @@ namespace FakelordUI
             RenderFavoritesBar();
 
             _ = CheckForGitHubUpdatesAsync();
+
+            if (IniManager.AutoFetchDiscord)
+            {
+                _ = AutoUpdateDiscordCatalogAsync();
+            }
 
             if (IniManager.StartMinimized)
             {
@@ -103,10 +138,27 @@ namespace FakelordUI
             }
         }
 
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+            var source = PresentationSource.FromVisual(this) as HwndSource;
+            source?.AddHook(WndProc);
+        }
+
+        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            if (msg == App.WM_SHOWME)
+            {
+                BringWindowToFront();
+                handled = true;
+            }
+            return IntPtr.Zero;
+        }
+
         private void RestoreWindowGeometry()
         {
-            if (IniManager.WindowWidth >= 500) Width = IniManager.WindowWidth;
-            if (IniManager.WindowHeight >= 450) Height = IniManager.WindowHeight;
+            if (IniManager.WindowWidth >= 400) Width = IniManager.WindowWidth;
+            if (IniManager.WindowHeight >= 500) Height = IniManager.WindowHeight;
 
             if (IniManager.WindowLeft >= 0 && IniManager.WindowTop >= 0)
             {
@@ -171,16 +223,15 @@ namespace FakelordUI
         private void LoadInitialGames()
         {
             _allGames = GameDatabase.LoadCachedGames();
-            _currentViewGames = GameDatabase.GetDefaultPopularGames();
-            _activeTab = "Popular";
+            _currentViewGames = _allGames;
+            _activeTab = "All";
             UpdateTabButtonsUI();
             UpdateGameCountBadge();
             GamesVisibleList.ItemsSource = _currentViewGames;
 
-            // Son seçilen oyun veya ilk oyun (popüler listesinde veya tüm oyunlarda)
-            var last = _currentViewGames.FirstOrDefault(g => g.ExeName.Equals(IniManager.LastGame, StringComparison.OrdinalIgnoreCase))
-                       ?? _allGames.FirstOrDefault(g => g.ExeName.Equals(IniManager.LastGame, StringComparison.OrdinalIgnoreCase))
-                       ?? _currentViewGames.FirstOrDefault();
+            // Son seçilen oyun veya ilk oyun (tüm oyunlarda)
+            var last = _allGames.FirstOrDefault(g => g.ExeName.Equals(IniManager.LastGame, StringComparison.OrdinalIgnoreCase))
+                       ?? _allGames.FirstOrDefault();
 
             if (last != null)
             {
@@ -199,13 +250,6 @@ namespace FakelordUI
         private void SelectGame(GameItem game)
         {
             _selectedGame = game;
-
-            _isUpdatingSearchText = true;
-            if (!SearchBox.IsFocused)
-            {
-                SearchBox.Text = game.Title;
-            }
-            _isUpdatingSearchText = false;
 
             if (GamesVisibleList.SelectedItem != game)
             {
@@ -228,7 +272,7 @@ namespace FakelordUI
             LoadGameImage(game.ImageUrl);
         }
 
-        private void LoadGameImage(string url)
+        private async void LoadGameImage(string url)
         {
             try
             {
@@ -258,7 +302,49 @@ namespace FakelordUI
                     return;
                 }
 
-                // Web URL yükleme
+                // Discord CDN URL'leri User-Agent olmadan 403 Forbidden verdiği için HttpClient ile önbelleğe alıp yerelden yüklüyoruz
+                if (url.Contains("cdn.discordapp.com/app-icons/"))
+                {
+                    string safeName = Path.GetFileName(new Uri(url).AbsolutePath);
+                    string cacheDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "Cache", "Icons");
+                    string cachePath = Path.Combine(cacheDir, safeName);
+
+                    if (!File.Exists(cachePath))
+                    {
+                        string altPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Cache", "Icons", safeName);
+                        if (File.Exists(altPath)) cachePath = altPath;
+                    }
+
+                    if (!File.Exists(cachePath))
+                    {
+                        await Task.Run(async () =>
+                        {
+                            try
+                            {
+                                using var client = new HttpClient();
+                                client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+                                byte[] bytes = await client.GetByteArrayAsync(url);
+                                Directory.CreateDirectory(cacheDir);
+                                await File.WriteAllBytesAsync(cachePath, bytes);
+                            }
+                            catch { }
+                        });
+                    }
+
+                    if (File.Exists(cachePath))
+                    {
+                        var cachedBmp = new BitmapImage();
+                        cachedBmp.BeginInit();
+                        cachedBmp.UriSource = new Uri(cachePath, UriKind.Absolute);
+                        cachedBmp.CacheOption = BitmapCacheOption.OnLoad;
+                        cachedBmp.EndInit();
+                        PreviewGameIcon.Source = cachedBmp;
+                        PreviewBadgeFallback.Visibility = Visibility.Collapsed;
+                        return;
+                    }
+                }
+
+                // Steam CDN veya genel Web URL yükleme
                 var bitmap = new BitmapImage();
                 bitmap.BeginInit();
                 bitmap.UriSource = new Uri(url, UriKind.Absolute);
@@ -292,15 +378,20 @@ namespace FakelordUI
 
             foreach (var exeName in IniManager.Favorites)
             {
-                var game = _allGames.FirstOrDefault(g => g.ExeName.Equals(exeName, StringComparison.OrdinalIgnoreCase))
+                var game = _allGames.FirstOrDefault(g => g.ExeName.Equals(exeName, StringComparison.OrdinalIgnoreCase) ||
+                                                         g.DisplayExeName.Equals(Path.GetFileName(exeName), StringComparison.OrdinalIgnoreCase) ||
+                                                         (exeName.Contains("cs", StringComparison.OrdinalIgnoreCase) && g.Title.Contains("Counter-Strike", StringComparison.OrdinalIgnoreCase)) ||
+                                                         (exeName.Contains("lol", StringComparison.OrdinalIgnoreCase) && g.Title.Contains("League of Legends", StringComparison.OrdinalIgnoreCase)) ||
+                                                         (exeName.Contains("valorant", StringComparison.OrdinalIgnoreCase) && g.Title.Contains("VALORANT", StringComparison.OrdinalIgnoreCase)))
+                           ?? GameDatabase.GetDefaultPopularGames().FirstOrDefault(g => g.ExeName.Equals(exeName, StringComparison.OrdinalIgnoreCase) ||
+                                                                                       g.DisplayExeName.Equals(Path.GetFileName(exeName), StringComparison.OrdinalIgnoreCase))
                            ?? new GameItem { ExeName = exeName, Title = exeName.Replace(".exe", "", StringComparison.OrdinalIgnoreCase) };
 
                 var btn = new Button
                 {
-                    Content = game.Title,
                     Tag = game,
                     Margin = new Thickness(0, 0, 6, 0),
-                    Padding = new Thickness(10, 4, 10, 4),
+                    Padding = new Thickness(8, 4, 10, 4),
                     FontSize = 11,
                     FontWeight = FontWeights.Medium,
                     Cursor = Cursors.Hand,
@@ -309,6 +400,58 @@ namespace FakelordUI
                     BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2D3748")),
                     BorderThickness = new Thickness(1)
                 };
+
+                // Oyun ikonu ve başlığı içeren yatay panel
+                var contentPanel = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+
+                bool iconAdded = false;
+                if (!string.IsNullOrWhiteSpace(game.ImageUrl))
+                {
+                    try
+                    {
+                        var bmp = new BitmapImage();
+                        bmp.BeginInit();
+                        bmp.UriSource = new Uri(game.ImageUrl, UriKind.RelativeOrAbsolute);
+                        bmp.CacheOption = BitmapCacheOption.OnLoad;
+                        bmp.EndInit();
+
+                        var iconImg = new Image
+                        {
+                            Source = bmp,
+                            Width = 16,
+                            Height = 16,
+                            Stretch = Stretch.Uniform,
+                            Margin = new Thickness(0, 0, 6, 0),
+                            VerticalAlignment = VerticalAlignment.Center
+                        };
+                        RenderOptions.SetBitmapScalingMode(iconImg, BitmapScalingMode.HighQuality);
+                        contentPanel.Children.Add(iconImg);
+                        iconAdded = true;
+                    }
+                    catch { }
+                }
+
+                if (!iconAdded)
+                {
+                    var iconText = new TextBlock
+                    {
+                        Text = "🎮",
+                        FontSize = 11,
+                        Margin = new Thickness(0, 0, 5, 0),
+                        VerticalAlignment = VerticalAlignment.Center
+                    };
+                    contentPanel.Children.Add(iconText);
+                }
+
+                var titleText = new TextBlock
+                {
+                    Text = game.Title,
+                    FontSize = 11,
+                    FontWeight = FontWeights.Medium,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                contentPanel.Children.Add(titleText);
+                btn.Content = contentPanel;
 
                 var template = new ControlTemplate(typeof(Button));
                 var borderFactory = new FrameworkElementFactory(typeof(Border));
@@ -329,8 +472,11 @@ namespace FakelordUI
                 {
                     if (s is Button b && b.Tag is GameItem clickedGame)
                     {
-                        var fullGame = _allGames.FirstOrDefault(g => g.ExeName.Equals(clickedGame.ExeName, StringComparison.OrdinalIgnoreCase)) ?? clickedGame;
+                        var fullGame = _allGames.FirstOrDefault(g => g.ExeName.Equals(clickedGame.ExeName, StringComparison.OrdinalIgnoreCase))
+                                       ?? GameDatabase.GetDefaultPopularGames().FirstOrDefault(g => g.ExeName.Equals(clickedGame.ExeName, StringComparison.OrdinalIgnoreCase))
+                                       ?? clickedGame;
                         SelectGame(fullGame);
+                        StartSelectedGame();
                     }
                 };
 
@@ -338,6 +484,22 @@ namespace FakelordUI
             }
 
             UpdateFavoriteToggleButton();
+
+            // Favoriler listesinin tam ve kesintisiz sığması için pencere genişliğini dinamik ayarla
+            try
+            {
+                FavoritesPanel.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                double favWidth = FavoritesPanel.DesiredSize.Width;
+                double neededWindowWidth = Math.Max(570, Math.Ceiling(favWidth + 240));
+
+                MinWidth = neededWindowWidth;
+                if (Width < neededWindowWidth)
+                {
+                    Width = neededWindowWidth;
+                    IniManager.WindowWidth = neededWindowWidth;
+                }
+            }
+            catch { }
         }
 
         private void UpdateFavoriteToggleButton()
@@ -349,6 +511,12 @@ namespace FakelordUI
             BtnToggleFav.Foreground = isFav
                 ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FBBF24"))
                 : new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F0F6FC"));
+        }
+
+        private void StartSelectedGame()
+        {
+            if (_selectedGame == null) return;
+            BtnStart_Click(this, new RoutedEventArgs());
         }
 
         private void BtnToggleFav_Click(object sender, RoutedEventArgs e)
@@ -378,9 +546,6 @@ namespace FakelordUI
             var inactiveBg = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#161B26"));
             var inactiveFg = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#949BA4"));
 
-            BtnTabPopular.Background = _activeTab == "Popular" ? activeBg : inactiveBg;
-            BtnTabPopular.Foreground = _activeTab == "Popular" ? activeFg : inactiveFg;
-
             BtnTabAll.Background = _activeTab == "All" ? activeBg : inactiveBg;
             BtnTabAll.Foreground = _activeTab == "All" ? activeFg : inactiveFg;
 
@@ -403,8 +568,8 @@ namespace FakelordUI
                     .Where(g => MatchesGame(g, query))
                     .ToList();
 
-                // Eğer aktif sekmede eşleşme çıkmadıysa, 2.800+ tüm oyun kataloğunda da ara
-                if (matches.Count == 0 && _allGames.Count > 0)
+                // Eğer aktif sekme Yüklü Oyunlar DEĞİLSE ve eşleşme çıkmadıysa, tüm oyun kataloğunda da ara
+                if (matches.Count == 0 && _allGames.Count > 0 && _activeTab != "SteamInstalled")
                 {
                     matches = _allGames
                         .Where(g => MatchesGame(g, query))
@@ -437,27 +602,7 @@ namespace FakelordUI
             return false;
         }
 
-        private void BtnTabPopular_Click(object sender, RoutedEventArgs e)
-        {
-            _activeTab = "Popular";
-            UpdateTabButtonsUI();
-            _currentViewGames = GameDatabase.GetDefaultPopularGames();
-            UpdateGameCountBadge();
 
-            _isUpdatingSearchText = true;
-            SearchBox.Text = "";
-            _isUpdatingSearchText = false;
-
-            FilterGamesList("");
-            if (_currentViewGames.Count > 0)
-            {
-                SelectGame(_currentViewGames[0]);
-                GamesVisibleList.SelectedIndex = 0;
-                GamesVisibleList.ScrollIntoView(_currentViewGames[0]);
-            }
-            StatusMessage.Text = LocalizationManager.Get("ReadyStatusMsg");
-            StatusMessage.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#10B981"));
-        }
 
         private void BtnTabAll_Click(object sender, RoutedEventArgs e)
         {
@@ -592,34 +737,25 @@ namespace FakelordUI
             IniManager.Language = lang;
             IniManager.Save();
 
-            if (lang == "EN")
-            {
-                BtnLangEN.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2D3748"));
-                BtnLangTR.Background = Brushes.Transparent;
-            }
-            else
-            {
-                BtnLangTR.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2D3748"));
-                BtnLangEN.Background = Brushes.Transparent;
-            }
-
             TxtSubtitle.Text = LocalizationManager.Get("AppSubtitle");
             TxtLiveCardHeader.Text = LocalizationManager.Get("LiveCardTitle");
             TxtPlayingTitle.Text = LocalizationManager.Get("PlayingAGame");
             BtnStart.Content = LocalizationManager.Get("PlayOnDiscord");
             BtnStop.Content = LocalizationManager.Get("StopGame");
             TxtFavLabel.Text = LocalizationManager.Get("FavTitle");
-            BtnTabPopular.Content = LocalizationManager.Get("TabPopular");
             BtnTabAll.Content = LocalizationManager.Get("TabAll");
             BtnTabSteamTop.Content = LocalizationManager.Get("TabSteamTop");
             BtnTabSteamInstalled.Content = LocalizationManager.Get("TabSteamInstalled");
             BtnAddSteamApp.Content = LocalizationManager.Get("BtnAddSteamApp");
 
             BtnAbout.ToolTip = LocalizationManager.Get("AboutBtnTooltip");
+            BtnRefreshDiscord.ToolTip = LocalizationManager.Get("TooltipRefreshDiscord");
+            BtnSettings.ToolTip = LocalizationManager.Get("TooltipSettings");
+            BtnAddSteamApp.ToolTip = LocalizationManager.Get("TooltipAddSteam");
             TxtAboutDeveloper.Text = LocalizationManager.Get("AboutDeveloper");
             TxtAboutDesc.Text = LocalizationManager.Get("AboutDesc");
-            TxtTwitterTitle.Text = LocalizationManager.Get("AboutTwitterTitle");
-            TxtTwitterDesc.Text = LocalizationManager.Get("AboutTwitterDesc");
+            TxtWebsiteTitle.Text = LocalizationManager.Get("AboutWebsiteTitle");
+            TxtWebsiteDesc.Text = LocalizationManager.Get("AboutWebsiteDesc");
             TxtGithubTitle.Text = LocalizationManager.Get("AboutGithubTitle");
             TxtGithubDesc.Text = LocalizationManager.Get("AboutGithubDesc");
             TxtIssuesTitle.Text = LocalizationManager.Get("AboutIssuesTitle");
@@ -646,11 +782,9 @@ namespace FakelordUI
             UpdateGameCountBadge();
             PopulateThemeComboBox();
             PopulateSettingsThemeComboBox();
+            PopulateSettingsLangComboBox();
             UpdateSettingsTexts();
         }
-
-        private void BtnLangTR_Click(object sender, RoutedEventArgs e) => ApplyLanguage("TR");
-        private void BtnLangEN_Click(object sender, RoutedEventArgs e) => ApplyLanguage("EN");
 
         private void PopulateThemeComboBox()
         {
@@ -745,6 +879,57 @@ namespace FakelordUI
             }
         }
 
+        private void PopulateSettingsLangComboBox()
+        {
+            if (ComboSettingsLang == null) return;
+            ComboSettingsLang.Items.Clear();
+
+            // Türkçe ComboBoxItem (Gerçek Bayrak Görseli)
+            var trPanel = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+            try
+            {
+                var trBmp = new BitmapImage(new Uri("pack://application:,,,/flag_tr.png", UriKind.RelativeOrAbsolute));
+                var trImg = new Image { Source = trBmp, Width = 18, Height = 13, Stretch = Stretch.Uniform, Margin = new Thickness(0, 0, 7, 0) };
+                RenderOptions.SetBitmapScalingMode(trImg, BitmapScalingMode.HighQuality);
+                trPanel.Children.Add(trImg);
+            }
+            catch { }
+            trPanel.Children.Add(new TextBlock { Text = "Türkçe", Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F0F6FC")), VerticalAlignment = VerticalAlignment.Center });
+
+            var trItem = new ComboBoxItem
+            {
+                Content = trPanel,
+                Tag = "TR",
+                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F0F6FC")),
+                Template = (ControlTemplate)Resources["ThemeComboItemTemplate"]
+            };
+
+            // English ComboBoxItem (Gerçek Bayrak Görseli)
+            var enPanel = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+            try
+            {
+                var enBmp = new BitmapImage(new Uri("pack://application:,,,/flag_gb.png", UriKind.RelativeOrAbsolute));
+                var enImg = new Image { Source = enBmp, Width = 18, Height = 13, Stretch = Stretch.Uniform, Margin = new Thickness(0, 0, 7, 0) };
+                RenderOptions.SetBitmapScalingMode(enImg, BitmapScalingMode.HighQuality);
+                enPanel.Children.Add(enImg);
+            }
+            catch { }
+            enPanel.Children.Add(new TextBlock { Text = "English", Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F0F6FC")), VerticalAlignment = VerticalAlignment.Center });
+
+            var enItem = new ComboBoxItem
+            {
+                Content = enPanel,
+                Tag = "EN",
+                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F0F6FC")),
+                Template = (ControlTemplate)Resources["ThemeComboItemTemplate"]
+            };
+
+            ComboSettingsLang.Items.Add(trItem);
+            ComboSettingsLang.Items.Add(enItem);
+
+            ComboSettingsLang.SelectedIndex = IniManager.Language.Equals("EN", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
+        }
+
         private void ComboSettingsTheme_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (_isPopulatingSettingsThemes) return;
@@ -804,11 +989,20 @@ namespace FakelordUI
             InnerGameCard.Background = new SolidColorBrush(innerBg);
             InnerGameCard.BorderBrush = new SolidColorBrush(borderCol);
 
-            ThemeBorder.Background = new SolidColorBrush(innerBg);
-            ThemeBorder.BorderBrush = new SolidColorBrush(borderCol);
+            ComboTheme.Background = new SolidColorBrush(innerBg);
+            ComboTheme.BorderBrush = new SolidColorBrush(borderCol);
 
-            LangBorder.Background = new SolidColorBrush(innerBg);
-            LangBorder.BorderBrush = new SolidColorBrush(borderCol);
+            if (ComboSettingsTheme != null)
+            {
+                ComboSettingsTheme.Background = new SolidColorBrush(innerBg);
+                ComboSettingsTheme.BorderBrush = new SolidColorBrush(borderCol);
+            }
+
+            if (ComboSettingsLang != null)
+            {
+                ComboSettingsLang.Background = new SolidColorBrush(innerBg);
+                ComboSettingsLang.BorderBrush = new SolidColorBrush(borderCol);
+            }
 
             AboutCardBorder.Background = new SolidColorBrush(cardBg);
             AboutCardBorder.BorderBrush = new SolidColorBrush(borderCol);
@@ -830,6 +1024,16 @@ namespace FakelordUI
             if (_isUpdatingSearchText) return;
 
             string query = SearchBox.Text.Trim();
+
+            // Steam Top 100 sekmesindeyken arama yapıldığında otomatik olarak Tüm Oyunlar filtresine geç
+            if (!string.IsNullOrWhiteSpace(query) && _activeTab == "SteamTop")
+            {
+                _activeTab = "All";
+                _currentViewGames = _allGames;
+                UpdateTabButtonsUI();
+                UpdateGameCountBadge();
+            }
+
             FilterGamesList(query);
         }
 
@@ -919,12 +1123,57 @@ namespace FakelordUI
             BtnRefreshDiscord.IsEnabled = true;
         }
 
+        private async Task AutoUpdateDiscordCatalogAsync()
+        {
+            try
+            {
+                var freshGames = await Task.Run(() => GameDatabase.FetchDiscordDetectableAsync());
+                if (freshGames.Count > 0)
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        _allGames = freshGames;
+                        
+                        if (_activeTab == "All")
+                        {
+                            _currentViewGames = _allGames;
+                        }
+                        else if (_activeTab == "Popular")
+                        {
+                            _currentViewGames = GameDatabase.GetDefaultPopularGames();
+                        }
+
+                        UpdateGameCountBadge();
+                        FilterGamesList(SearchBox.Text.Trim());
+                        RenderFavoritesBar();
+
+                        // Açılışta güncellemenin yapıldığını kullanıcıya açıkça hissettir
+                        StatusMessage.Text = LocalizationManager.Get("CatalogSuccessMsg", _allGames.Count);
+                        StatusMessage.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#10B981"));
+                        ShowToast(LocalizationManager.Get("ToastUpdatedAll"), "🔄");
+
+                        // Eğer seçili oyun varsa görsel ve detayları yenile
+                        if (_selectedGame != null)
+                        {
+                            var updatedGame = _allGames.FirstOrDefault(g => g.ExeName.Equals(_selectedGame.ExeName, StringComparison.OrdinalIgnoreCase))
+                                              ?? GameDatabase.GetDefaultPopularGames().FirstOrDefault(g => g.ExeName.Equals(_selectedGame.ExeName, StringComparison.OrdinalIgnoreCase));
+                            if (updatedGame != null)
+                            {
+                                SelectGame(updatedGame);
+                            }
+                        }
+                    });
+                }
+            }
+            catch { }
+        }
+
         private void BtnStart_Click(object sender, RoutedEventArgs e)
         {
             if (_selectedGame == null) return;
 
             string error;
-            bool success = GhostProcessManager.StartGame(_selectedGame.ExeName, out error);
+            bool success = GhostProcessManager.StartGame(_selectedGame.ExeName, _selectedGame.Title, _selectedGame.ImageUrl, out error);
             if (success)
             {
                 _isPlaying = true;
@@ -940,6 +1189,9 @@ namespace FakelordUI
                 PreviewStatus.Text = LocalizationManager.Get("PlayingStatus");
 
                 ShowToast(string.Format(LocalizationManager.Get("ToastGameStarted"), _selectedGame.Title), "🚀");
+
+                // HaYTooL açıldığında FakelordUI ekrandan yok olsun (Yer değiştirme)
+                this.Hide();
             }
             else
             {
@@ -1011,7 +1263,9 @@ namespace FakelordUI
             ChkMinimizeToTray.IsChecked = IniManager.MinimizeToTray;
             ChkStartWithWindows.IsChecked = StartupManager.IsStartupEnabled();
             ChkStartMinimized.IsChecked = IniManager.StartMinimized;
+            ChkAutoFetchDiscord.IsChecked = IniManager.AutoFetchDiscord;
             SyncSettingsThemeSelection(IniManager.Theme);
+            PopulateSettingsLangComboBox();
 
             SettingsModalOverlay.Visibility = Visibility.Visible;
         }
@@ -1040,11 +1294,22 @@ namespace FakelordUI
             bool minToTray = ChkMinimizeToTray.IsChecked == true;
             bool startWithWin = ChkStartWithWindows.IsChecked == true;
             bool startMin = ChkStartMinimized.IsChecked == true;
+            bool autoFetch = ChkAutoFetchDiscord.IsChecked == true;
 
             IniManager.EnableSystemTray = trayEnabled;
             IniManager.MinimizeToTray = minToTray;
             IniManager.StartWithWindows = startWithWin;
             IniManager.StartMinimized = startMin;
+            IniManager.AutoFetchDiscord = autoFetch;
+
+            if (ComboSettingsLang.SelectedItem is ComboBoxItem langItem && langItem.Tag is string langCode)
+            {
+                if (!langCode.Equals(IniManager.Language, StringComparison.OrdinalIgnoreCase))
+                {
+                    IniManager.Language = langCode;
+                    ApplyLanguage(langCode);
+                }
+            }
 
             StartupManager.SetStartup(startWithWin);
 
@@ -1078,8 +1343,15 @@ namespace FakelordUI
         {
             TxtSettingsHeaderTitle.Text = LocalizationManager.Get("SettingsTitle");
             TxtSettingsHeaderDesc.Text = LocalizationManager.Get("SettingsGeneral");
+            TxtSettingsLangTitle.Text = LocalizationManager.Get("SettingsLangTitle");
+            TxtSettingsLangDesc.Text = LocalizationManager.Get("SettingsLangDesc");
+            TxtSettingsWebTitle.Text = LocalizationManager.Get("SettingsWebsiteTitle");
+            TxtSettingsWebDesc.Text = LocalizationManager.Get("SettingsWebsiteDesc");
             TxtSettingsThemeTitle.Text = LocalizationManager.Get("SettingsAppearance");
             TxtSettingsThemeDesc.Text = LocalizationManager.Get("Theme_" + IniManager.Theme);
+
+            TxtSettingsAutoFetchTitle.Text = LocalizationManager.Get("SettingsAutoFetchTitle");
+            TxtSettingsAutoFetchDesc.Text = LocalizationManager.Get("SettingsAutoFetchDesc");
 
             TxtSettingsTrayTitle.Text = LocalizationManager.Get("SettingsEnableTray");
             TxtSettingsTrayDesc.Text = LocalizationManager.Get("SettingsEnableTrayDesc");
@@ -1117,13 +1389,22 @@ namespace FakelordUI
                 _notifyIcon = new Forms.NotifyIcon();
                 _notifyIcon.Text = "FakeLord - Discord Game Simulator";
 
-                // İkon yükleme: Önce dosya sistemi app.ico, yoksa WPF pencere ikonu
-                string icoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.ico");
-                if (File.Exists(icoPath))
+                // İkon yükleme: Uygulamanın kendi derlenmiş ikonu
+                try
                 {
-                    _notifyIcon.Icon = new Drawing.Icon(icoPath);
+                    string? exePath = Environment.ProcessPath;
+                    if (!string.IsNullOrEmpty(exePath) && File.Exists(exePath))
+                    {
+                        _notifyIcon.Icon = Drawing.Icon.ExtractAssociatedIcon(exePath) ?? Drawing.SystemIcons.Application;
+                    }
+                    else
+                    {
+                        string icoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "app.ico");
+                        if (!File.Exists(icoPath)) icoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.ico");
+                        _notifyIcon.Icon = File.Exists(icoPath) ? new Drawing.Icon(icoPath) : Drawing.SystemIcons.Application;
+                    }
                 }
-                else
+                catch
                 {
                     _notifyIcon.Icon = Drawing.SystemIcons.Application;
                 }
@@ -1239,6 +1520,8 @@ namespace FakelordUI
                     WindowState = WindowState.Normal;
                 }
                 Activate();
+                Topmost = true;
+                Topmost = false;
                 Focus();
             });
         }
@@ -1258,7 +1541,8 @@ namespace FakelordUI
         }
         #endregion
 
-        private void LinkTwitter_Click(object sender, RoutedEventArgs e) => OpenUrl("https://x.com/HaYTo");
+        private void WebBadge_MouseDown(object sender, MouseButtonEventArgs e) => OpenUrl("https://haytool.online/FakeLord/");
+        private void LinkWebsite_Click(object sender, RoutedEventArgs e) => OpenUrl("https://haytool.online/FakeLord/");
         private void LinkGithub_Click(object sender, RoutedEventArgs e) => OpenUrl("https://github.com/HaYToKoRaZ/FakeLord");
         private void LinkIssues_Click(object sender, RoutedEventArgs e) => OpenUrl("https://github.com/HaYToKoRaZ/FakeLord/issues");
         private void LinkEmail_Click(object sender, RoutedEventArgs e) => OpenUrl("mailto:korazhayto@gmail.com");

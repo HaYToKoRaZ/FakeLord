@@ -16,8 +16,17 @@ websites/
 .agents/
 
 # Yerel Betikler ve Yardımcılar (GitHub'a gitmeyecek)
+Backup/
+backup.ps1
 ANAYASA.md
 derle.ps1
+derle-haytool.ps1
 push-main.ps1
 push-websites.ps1
 icon.png
+
+# Önbellek ve İndirilen Görseller
+**/Cache/
+Cache/
+discord_detectable_cache.json
+**/discord_detectable_cache.json

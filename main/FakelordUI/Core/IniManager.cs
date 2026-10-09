@@ -10,20 +10,33 @@ namespace FakelordUI.Core
     {
         private static string IniPath => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.ini");
 
+        public static string DetectSystemLanguage()
+        {
+            try
+            {
+                var twoLetter = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+                return twoLetter.Equals("tr", StringComparison.OrdinalIgnoreCase) ? "TR" : "EN";
+            }
+            catch
+            {
+                return "TR";
+            }
+        }
+
         public static string LastGame { get; set; } = "cs2.exe";
         public static string CustomGameImage { get; set; } = "";
         public static bool AutoFetchDiscord { get; set; } = true;
         public static bool StartMinimized { get; set; } = false;
-        public static string Language { get; set; } = "TR"; // TR or EN
+        public static string Language { get; set; } = DetectSystemLanguage(); // TR or EN (Auto detected from OS)
         public static string Theme { get; set; } = "ObsidianAbyss"; // ObsidianAbyss, DiscordNitro, VaporwaveSunset, AbyssalOcean, RogueCrimson, MatrixEmerald, SolarFlare, AmethystNight
-        public static List<string> Favorites { get; set; } = new() { "cs2.exe", "GTA5.exe", "win64/valorant-win64-shipping.exe", "league of legends.exe" };
+        public static List<string> Favorites { get; set; } = new() { "win64/cs2.exe", "league of legends.exe", "win64/valorant-win64-shipping.exe" };
 
         // Yeni Eklenen Ayarlar
         public static bool EnableSystemTray { get; set; } = true;
         public static bool MinimizeToTray { get; set; } = true;
         public static bool StartWithWindows { get; set; } = false;
-        public static double WindowWidth { get; set; } = 740;
-        public static double WindowHeight { get; set; } = 670;
+        public static double WindowWidth { get; set; } = 570;
+        public static double WindowHeight { get; set; } = 880;
         public static double WindowLeft { get; set; } = -1; // -1: varsayilan merkez
         public static double WindowTop { get; set; } = -1;
         public static List<string> RecentGames { get; set; } = new();
@@ -47,6 +60,7 @@ namespace FakelordUI.Core
         {
             if (!File.Exists(IniPath))
             {
+                Language = DetectSystemLanguage();
                 Save();
                 return;
             }
@@ -128,6 +142,11 @@ namespace FakelordUI.Core
                                            .ToList();
                             break;
                     }
+                }
+
+                if (Favorites.Count == 0)
+                {
+                    Favorites = new List<string> { "win64/cs2.exe", "league of legends.exe", "win64/valorant-win64-shipping.exe" };
                 }
             }
             catch { }
