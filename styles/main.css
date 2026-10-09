@@ -3,8 +3,6 @@
    Featuring Mascot "Çakıl" & 12 Dynamic Theme Factory Palettes
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
-
 /* Default Theme: Discord Nitro */
 :root {
   --font-main: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -18,9 +16,9 @@
   --bg-glass: rgba(14, 17, 23, 0.8);
   --border-subtle: #252d3a;
   --border-focus: #5865F2;
-  --text-primary: #f0f6fc;
-  --text-secondary: #9aa5b5;
-  --text-muted: #626e82;
+  --text-primary: #ffffff;
+  --text-secondary: #c0d1e8;
+  --text-muted: #9cb0c9;
   --accent: #5865F2;
   --accent-rgb: 88, 101, 242;
   --accent-hover: #4752c4;
@@ -1126,8 +1124,15 @@ body {
   border-top: 1px solid var(--border-subtle);
   background: var(--bg-secondary);
   padding: 50px 0 30px;
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+}
+
+.footer-desc {
+  max-width: 380px;
   font-size: 0.9rem;
   color: var(--text-secondary);
+  line-height: 1.6;
 }
 
 .footer-grid {
@@ -1145,6 +1150,13 @@ body {
   font-weight: 800;
   color: var(--text-primary);
   margin-bottom: 12px;
+}
+
+.footer-heading {
+  color: var(--text-primary);
+  margin-bottom: 14px;
+  font-size: 0.95rem;
+  font-weight: 600;
 }
 
 .footer-links {
@@ -1165,15 +1177,30 @@ body {
 }
 
 .footer-bottom {
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   padding-top: 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 0.82rem;
+  font-size: 0.88rem;
   color: var(--text-muted);
   flex-wrap: wrap;
   gap: 12px;
+}
+
+.footer-bottom strong {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.footer-bottom a {
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.footer-bottom a:hover {
+  color: var(--accent);
 }
 
 /* Responsive */
@@ -1215,16 +1242,26 @@ body {
    404 ERROR PAGE STYLES
    ========================================================================== */
 .error-page {
-  min-height: calc(100vh - 72px - 140px);
+  min-height: calc(100vh - 72px - 200px);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 60px 24px;
   text-align: center;
+  width: 100%;
+}
+
+.error-page .container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
 .error-card {
   max-width: 620px;
+  width: 100%;
+  margin: 0 auto;
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-xl);
@@ -1233,6 +1270,10 @@ body {
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
 .error-code {

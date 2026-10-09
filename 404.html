@@ -7,13 +7,32 @@
   
   <!-- 404 SEO: Prevent search engine indexing of invalid URLs -->
   <meta name="robots" content="noindex, nofollow">
+  <meta name="author" content="HaYTo">
+  <meta name="publisher" content="HaYTooL">
+  <meta name="DC.publisher" content="HaYTooL">
   <meta name="description" content="404 Page Not Found - The requested page could not be found on FakeLord.">
   
-  <!-- Favicons -->
-  <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
-  <link rel="apple-touch-icon" href="assets/icon.png">
+  <!-- Favicons & App Icons -->
+  <link rel="icon" type="image/x-icon" sizes="32x32 16x16" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
+  <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#5865F2">
+ 
+  <!-- LCP Image Preload Discovery (Immediate Browser Preload Scanner) -->
+  <link rel="preload" as="image" href="assets/cakil.webp" type="image/webp" fetchpriority="high">
 
-  <!-- Stylesheet -->
+  <!-- Google Fonts Preconnect & Optimized Non-Blocking Load -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=JetBrains+Mono:wght@500;700&display=swap" media="print" onload="this.media='all'">
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=JetBrains+Mono:wght@500;700&display=swap">
+  </noscript>
+
+  <!-- Stylesheet (Preloaded for zero render-blocking delay) -->
+  <link rel="preload" href="styles/main.css" as="style">
   <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
@@ -24,10 +43,10 @@
     <div class="container nav-inner">
       <div style="display:flex; align-items:center;">
         <a href="./" class="nav-brand">
-          <img src="assets/icon.png" alt="FakeLord Logo" class="nav-logo" width="40" height="40">
+          <img src="assets/icon.webp" alt="FakeLord Logo" class="nav-logo" width="40" height="40">
           <span>FAKELORD</span>
         </a>
-        <a href="https://haytokoraz.github.io/" target="_blank" rel="noopener" class="nav-portal-badge" title="HaYTooL Portal">
+        <a href="https://haytokoraz.github.io/" target="_blank" rel="nofollow noopener noreferrer" class="nav-portal-badge" title="HaYTooL Portal">
           <span>🌐 HaYTooL</span>
         </a>
       </div>
@@ -110,7 +129,10 @@
 
         <!-- Mascot Çakıl Interactive Focus -->
         <div class="error-mascot-wrap" title="Çakıl'a tıkla ve sev!">
-          <img src="assets/cakil.jpg" alt="FakeLord Gamer Kedisi Çakıl" id="cakilMascotImg">
+          <picture>
+            <source srcset="assets/cakil.webp" type="image/webp">
+            <img src="assets/cakil.jpg" alt="FakeLord Gamer Kedisi Çakıl" id="cakilMascotImg" width="260" height="260" fetchpriority="high">
+          </picture>
         </div>
 
         <div class="error-bubble">
@@ -140,41 +162,41 @@
       <div class="footer-grid">
         <div>
           <div class="footer-brand">
-            <img src="assets/icon.png" alt="FakeLord Logo" style="width: 28px; height: 28px; border-radius: 6px;">
+            <img src="assets/icon.webp" alt="FakeLord Logo" style="width: 28px; height: 28px; border-radius: 6px;" width="28" height="28" loading="lazy">
             <span>FAKELORD</span>
           </div>
-          <p style="max-width: 380px; font-size: 0.88rem; color: var(--text-secondary);" data-i18n="footerAbout">
+          <p class="footer-desc" data-i18n="footerAbout">
             Fakelord, Discord ve Steam ekosistemi için tasarlanmış yüksek performanslı, hayalet süreç tabanlı modern oyun simülasyon aracıdır.
           </p>
         </div>
 
         <div>
-          <h4 style="color: var(--text-primary); margin-bottom: 14px; font-size: 0.95rem;" data-i18n="footerLinksTitle">Bağlantılar</h4>
+          <h2 class="footer-heading" data-i18n="footerLinksTitle">Bağlantılar</h2>
           <ul class="footer-links">
-            <li><a href="https://haytokoraz.github.io/" target="_blank" rel="noopener">🌐 HaYTooL Portal</a></li>
-            <li><a href="https://github.com/HaYToKoRaZ/FakeLord" target="_blank" rel="noopener">GitHub Repository</a></li>
-            <li><a href="https://github.com/HaYToKoRaZ/FakeLord/releases" target="_blank" rel="noopener">Releases (İndir)</a></li>
-            <li><a href="https://github.com/HaYToKoRaZ/FakeLord/issues" target="_blank" rel="noopener">Hata Bildirimi (Issues)</a></li>
+            <li><a href="https://haytokoraz.github.io/" target="_blank" rel="nofollow noopener noreferrer">🌐 HaYTooL Portal</a></li>
+            <li><a href="https://github.com/HaYToKoRaZ/FakeLord" target="_blank" rel="nofollow noopener noreferrer">GitHub Repository</a></li>
+            <li><a href="https://github.com/HaYToKoRaZ/FakeLord/releases" target="_blank" rel="nofollow noopener noreferrer">Releases (İndir)</a></li>
+            <li><a href="https://github.com/HaYToKoRaZ/FakeLord/issues" target="_blank" rel="nofollow noopener noreferrer">Hata Bildirimi (Issues)</a></li>
           </ul>
         </div>
 
         <div>
-          <h4 style="color: var(--text-primary); margin-bottom: 14px; font-size: 0.95rem;" data-i18n="footerContactTitle">İletişim & Geliştirici</h4>
+          <h2 class="footer-heading" data-i18n="footerContactTitle">İletişim & Geliştirici</h2>
           <ul class="footer-links">
-            <li><a href="https://github.com/HaYToKoRaZ" target="_blank" rel="noopener">HaYTo (GitHub)</a></li>
-            <li><a href="https://x.com/HaYTo" target="_blank" rel="noopener">X / Twitter (@HaYTo)</a></li>
+            <li><a href="https://github.com/HaYToKoRaZ" target="_blank" rel="nofollow noopener noreferrer">HaYTo (GitHub)</a></li>
+            <li><a href="https://x.com/HaYTo" target="_blank" rel="nofollow noopener noreferrer">X / Twitter (@HaYTo)</a></li>
             <li><a href="mailto:korazhayto@gmail.com">korazhayto@gmail.com</a></li>
           </ul>
         </div>
       </div>
 
       <div class="footer-bottom">
-        <div>© 2026 FakeLord • Bir <a href="https://haytokoraz.github.io/" target="_blank" rel="noopener" style="color:var(--text-primary); text-decoration:underline;">HaYTooL</a> Projesidir. Geliştirici: <strong>HaYTo</strong>.</div>
+        <div>© 2026 FakeLord • Bir <a href="https://haytokoraz.github.io/" target="_blank" rel="nofollow noopener noreferrer" style="color:var(--text-primary); text-decoration:underline;">HaYTooL</a> Projesidir. Geliştirici: <strong>HaYTo</strong>.</div>
         <div data-i18n="footerRights">Tüm hakları saklıdır. Discord Inc. veya Valve Corp. ile resmi bağı bulunmamaktadır.</div>
       </div>
     </div>
   </footer>
 
-  <script src="app.js"></script>
+  <script src="app.js" defer></script>
 </body>
 </html>

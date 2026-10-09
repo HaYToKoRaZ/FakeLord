@@ -1,13 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://haytokoraz.github.io/FakeLord/</loc>
-    <lastmod>2026-10-09</lastmod>
-    <changefreq>weekly</changefreq>
+    <lastmod>2026-10-09T20:45:00+03:00</lastmod>
+    <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://haytokoraz.github.io/FakeLord/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://haytokoraz.github.io/FakeLord/?lang=en"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://haytokoraz.github.io/FakeLord/?lang=tr"/>
+    <image:image>
+      <image:loc>https://haytokoraz.github.io/FakeLord/assets/cakil.webp</image:loc>
+      <image:title>FakeLord — Discord Ghost Game &amp; Activity Simulator (Mascot Çakıl)</image:title>
+      <image:caption>Official Gamer Cat Mascot Çakıl with RGB headset</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://haytokoraz.github.io/FakeLord/assets/icon.webp</image:loc>
+      <image:title>FakeLord Logo</image:title>
+    </image:image>
   </url>
 </urlset>

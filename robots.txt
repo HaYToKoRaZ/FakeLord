@@ -1,3 +1,61 @@
+# Robots.txt for FakeLord (https://haytokoraz.github.io/FakeLord/)
+# Comprehensive Crawler Configuration for Major Search Engines & AI Models
+
 User-agent: *
 Allow: /
+Disallow: /404.html
+
+# 1. Google (Search, Images & Gemini AI)
+User-agent: Googlebot
+User-agent: Googlebot-Image
+User-agent: Google-Extended
+Allow: /
+
+# 2. Microsoft Bing & Copilot
+User-agent: Bingbot
+User-agent: msnbot
+User-agent: BingPreview
+Allow: /
+
+# 3. DuckDuckGo
+User-agent: DuckDuckBot
+Allow: /
+
+# 4. Yandex & Baidu (Global Search)
+User-agent: Yandex
+User-agent: YandexBot
+User-agent: Baiduspider
+Allow: /
+
+# 5. Yahoo & Seznam
+User-agent: Slurp
+User-agent: SeznamBot
+Allow: /
+
+# 6. OpenAI (ChatGPT, GPT-4, GPTBot)
+User-agent: GPTBot
+User-agent: ChatGPT-User
+Allow: /
+
+# 7. Anthropic (Claude, ClaudeBot)
+User-agent: ClaudeBot
+User-agent: Claude-Web
+Allow: /
+
+# 8. Perplexity AI
+User-agent: PerplexityBot
+Allow: /
+
+# 9. Apple (Applebot & Siri / Apple Intelligence)
+User-agent: Applebot
+User-agent: Applebot-Extended
+Allow: /
+
+# 10. Meta & Amazon
+User-agent: CCBot
+User-agent: FacebookExternalHit
+User-agent: Amazonbot
+Allow: /
+
+# Canonical Sitemap Index
 Sitemap: https://haytokoraz.github.io/FakeLord/sitemap.xml

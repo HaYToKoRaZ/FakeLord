@@ -180,11 +180,11 @@ const translations = {
 
 // --- 2. GAME CATALOG FOR SIMULATOR ---
 const simulatorGames = [
-  { id: "gta5", title: "Grand Theft Auto V", icon: "assets/gta5.jpg", sub: "Playing in Los Santos", exe: "GTA5.exe" },
-  { id: "cs2", title: "Counter-Strike 2", icon: "assets/cs2.jpg", sub: "Competitive • Mirage", exe: "cs2.exe" },
-  { id: "lol", title: "League of Legends", icon: "assets/lol.png", sub: "Ranked Solo/Duo • Summoner's Rift", exe: "League of Legends.exe" },
-  { id: "valorant", title: "VALORANT", icon: "assets/valorant.png", sub: "In Match • Ascent (12-11)", exe: "VALORANT.exe" },
-  { id: "cyberpunk", title: "Cyberpunk 2077", icon: "assets/cyberpunk.jpg", sub: "Exploring Night City", exe: "Cyberpunk2077.exe" }
+  { id: "gta5", title: "Grand Theft Auto V", icon: "assets/gta5.webp", sub: "Playing in Los Santos", exe: "GTA5.exe" },
+  { id: "cs2", title: "Counter-Strike 2", icon: "assets/cs2.webp", sub: "Competitive • Mirage", exe: "cs2.exe" },
+  { id: "lol", title: "League of Legends", icon: "assets/lol.webp", sub: "Ranked Solo/Duo • Summoner's Rift", exe: "League of Legends.exe" },
+  { id: "valorant", title: "VALORANT", icon: "assets/valorant.webp", sub: "In Match • Ascent (12-11)", exe: "VALORANT.exe" },
+  { id: "cyberpunk", title: "Cyberpunk 2077", icon: "assets/cyberpunk.webp", sub: "Exploring Night City", exe: "Cyberpunk2077.exe" }
 ];
 
 // --- 3. STATE ---
@@ -451,3 +451,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // 5. FAQ Init
   initFaq();
 });
+
+// 6. Service Worker Registration (Long-Term Browser Caching & Instant Loads)
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  });
+}
