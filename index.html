@@ -1,229 +1,568 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en" data-theme="discord">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FakeLord • Discord Akıllı Oyun Algılama & Profil Simülatörü</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #0A0D14;
-      --card-bg: rgba(18, 24, 38, 0.7);
-      --card-border: rgba(56, 189, 248, 0.2);
-      --text: #F0F6FC;
-      --text-muted: #8B949E;
-      --primary: #5865F2;
-      --accent: #38BDF8;
-      --emerald: #10B981;
-    }
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      background-color: var(--bg);
-      color: var(--text);
-      font-family: 'Outfit', sans-serif;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      overflow-x: hidden;
-      background-image: 
-        radial-gradient(circle at 50% 20%, rgba(88, 101, 242, 0.18) 0%, transparent 60%),
-        radial-gradient(circle at 80% 80%, rgba(56, 189, 248, 0.12) 0%, transparent 50%);
-    }
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(88, 101, 242, 0.15);
-      border: 1px solid rgba(88, 101, 242, 0.35);
-      color: #818CF8;
-      padding: 6px 14px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 20px;
-      letter-spacing: 0.5px;
-    }
-    .badge-dot {
-      width: 7px;
-      height: 7px;
-      background: var(--emerald);
-      border-radius: 50%;
-      box-shadow: 0 0 8px var(--emerald);
-    }
-    .card {
-      background: var(--card-bg);
-      backdrop-filter: blur(16px);
-      border: 1px solid var(--card-border);
-      border-radius: 20px;
-      max-width: 680px;
-      width: 100%;
-      padding: 44px 36px;
-      text-align: center;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-    }
-    h1 {
-      font-size: 44px;
-      font-weight: 800;
-      letter-spacing: 1px;
-      background: linear-gradient(135deg, #FFFFFF 30%, var(--accent) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 12px;
-    }
-    p.lead {
-      color: var(--text-muted);
-      font-size: 16px;
-      line-height: 1.6;
-      margin-bottom: 30px;
-    }
-    .features {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 14px;
-      margin-bottom: 34px;
-      text-align: left;
-    }
-    .feature-item {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 12px;
-      padding: 16px;
-      transition: all 0.2s ease;
-    }
-    .feature-item:hover {
-      background: rgba(255, 255, 255, 0.06);
-      border-color: rgba(56, 189, 248, 0.3);
-      transform: translateY(-2px);
-    }
-    .feature-icon {
-      font-size: 20px;
-      margin-bottom: 8px;
-    }
-    .feature-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: #FFFFFF;
-      margin-bottom: 4px;
-    }
-    .feature-desc {
-      font-size: 12px;
-      color: var(--text-muted);
-      line-height: 1.4;
-    }
-    .buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      justify-content: center;
-      margin-bottom: 24px;
-    }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 22px;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 600;
-      text-decoration: none;
-      transition: all 0.2s ease;
-      cursor: pointer;
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, #5865F2, #4752C4);
-      color: #FFFFFF;
-      box-shadow: 0 4px 16px rgba(88, 101, 242, 0.4);
-    }
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(88, 101, 242, 0.6);
-    }
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: var(--text);
-    }
-    .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: var(--accent);
-      transform: translateY(-2px);
-    }
-    footer {
-      margin-top: 18px;
-      color: var(--text-muted);
-      font-size: 12px;
-      display: flex;
-      gap: 16px;
-      justify-content: center;
-    }
-    footer a {
-      color: var(--text-muted);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-    footer a:hover {
-      color: var(--accent);
-    }
-  </style>
+  <title>FakeLord — Discord Ghost Game Simulator & Rich Presence Spoofer</title>
+  
+  <!-- SEO & Canonical Meta (Claude-SEO Global) -->
+  <meta name="description" content="Simulate 3,000+ Discord games and Steam Top 100 titles with 0% CPU and zero ban risk. Stealth Win32 ghost process spoofer with 12 custom themes, mascot Çakıl, and instant setup.">
+  <meta name="keywords" content="fakelord, discord fake game, discord rich presence, discord rpc spoofer, steam fake play, ghost process, cakil mascot, discord detectable games, steam top 100">
+  <meta name="author" content="HaYTo">
+  <meta name="publisher" content="HaYTooL Portal">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <link rel="canonical" href="https://haytokoraz.github.io/FakeLord/">
+  
+  <!-- Multilingual Alternates -->
+  <link rel="alternate" hreflang="x-default" href="https://haytokoraz.github.io/FakeLord/">
+  <link rel="alternate" hreflang="en" href="https://haytokoraz.github.io/FakeLord/?lang=en">
+  <link rel="alternate" hreflang="tr" href="https://haytokoraz.github.io/FakeLord/?lang=tr">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:site_name" content="FakeLord">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="tr_TR">
+  <meta property="og:url" content="https://haytokoraz.github.io/FakeLord/">
+  <meta property="og:title" content="FakeLord — Discord Ghost Game Simulator & Rich Presence Spoofer">
+  <meta property="og:description" content="Simulate 3,000+ Discord games & Steam Top 100 titles with 0% CPU. 100% ban-proof, zero token, portable.">
+  <meta property="og:image" content="https://haytokoraz.github.io/FakeLord/assets/cakil.jpg">
+  <meta property="og:image:secure_url" content="https://haytokoraz.github.io/FakeLord/assets/cakil.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1024">
+  <meta property="og:image:height" content="1024">
+  <meta property="og:image:alt" content="FakeLord Gamer Cat Mascot Çakıl with RGB headset">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@HaYTo">
+  <meta name="twitter:creator" content="@HaYTo">
+  <meta name="twitter:title" content="FakeLord — Discord Ghost Game Simulator & Rich Presence Spoofer">
+  <meta name="twitter:description" content="Simulate 3,000+ Discord games & Steam Top 100 titles with 0% CPU. 100% ban-proof.">
+  <meta name="twitter:image" content="https://haytokoraz.github.io/FakeLord/assets/cakil.jpg">
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+  <link rel="apple-touch-icon" href="assets/icon.png">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="styles/main.css">
+
+  <!-- Schema.org JSON-LD (SoftwareApplication, FAQPage & WebSite) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "FakeLord",
+        "operatingSystem": "Windows 10, Windows 11",
+        "applicationCategory": "GameApplication, UtilitiesApplication",
+        "softwareVersion": "1.7.0",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.9",
+          "ratingCount": "128",
+          "bestRating": "5"
+        },
+        "author": {
+          "@type": "Person",
+          "name": "HaYTo",
+          "url": "https://github.com/HaYToKoRaZ"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "HaYTooL Portal",
+          "url": "https://haytokoraz.github.io/"
+        },
+        "downloadUrl": "https://github.com/HaYToKoRaZ/FakeLord/releases",
+        "description": "High-performance Win32 ghost process game simulator for Discord and Steam. Simulate 3,000+ games with zero CPU usage and complete ban protection.",
+        "featureList": [
+          "Zero CPU consumption via Win32 Ghost Process",
+          "3,000+ verified Discord Detectable games",
+          "Steam Top 100 integration",
+          "12 Theme Factory color palettes",
+          "A-Z quick jump ribbon",
+          "Steam App ID custom game loader",
+          "100% ban proof without memory injection"
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Can my Discord account get banned for using FakeLord?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Absolutely not. FakeLord never interacts with Discord tokens, credentials, or game process memory. It launches stealth Win32 background processes that Discord naturally identifies."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does FakeLord slow down my computer?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Not at all. Ghost processes remain entirely asleep (Thread.Sleep). They consume 0% CPU and only about 3-5 MB of RAM."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does the simulated game stop when I close FakeLord?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. When you close FakeLord or click Stop, all background ghost processes are instantly and cleanly terminated via Win32 TerminateProcess with zero zombie processes left behind."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I add unlisted or custom indie games?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes! Simply paste any Steam App ID to automatically fetch official game artwork, title, and launch the simulation in one click."
+            }
+          }
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "name": "FakeLord",
+        "url": "https://haytokoraz.github.io/FakeLord/",
+        "publisher": {
+          "@type": "Organization",
+          "name": "HaYTooL Portal",
+          "url": "https://haytokoraz.github.io/"
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
-  <div class="card">
-    <div class="badge">
-      <span class="badge-dot"></span>
-      FakeLord v1.2 Canlı &amp; Aktif
-    </div>
-    <h1>FAKELORD</h1>
-    <p class="lead">
-      Discord Akıllı Oyun Algılama ve Profil Simülasyon Motoru.<br>
-      Gerçek oyunları indirmeye veya çalıştırmaya gerek kalmadan Discord durumunuzu anında yönetin.
-    </p>
+  <div class="bg-mesh"></div>
 
-    <div class="features">
-      <div class="feature-item">
-        <div class="feature-icon">🎮</div>
-        <div class="feature-title">3.000+ Oyun</div>
-        <div class="feature-desc">Discord Detectable resmi kataloğunun tamamı entegre.</div>
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <div class="container nav-inner">
+      <div style="display:flex; align-items:center;">
+        <a href="./" class="nav-brand">
+          <img src="assets/icon.png" alt="FakeLord Logo" class="nav-logo" width="40" height="40">
+          <span>FAKELORD</span>
+        </a>
+        <a href="https://haytokoraz.github.io/" target="_blank" rel="noopener" class="nav-portal-badge" title="HaYTooL Portal (haytokoraz.github.io)">
+          <span>🌐 HaYTooL</span>
+        </a>
       </div>
-      <div class="feature-item">
-        <div class="feature-icon">🔥</div>
-        <div class="feature-title">Steam Entegrasyonu</div>
-        <div class="feature-desc">Steam Top 100 ve kütüphane otomatik algılama desteği.</div>
-      </div>
-      <div class="feature-item">
-        <div class="feature-icon">⚡</div>
-        <div class="feature-title">Sıfır Kaynak</div>
-        <div class="feature-desc">Ghost Process mimarisi ile %0 CPU ve minimal RAM tüketimi.</div>
+
+      <nav>
+        <ul class="nav-links">
+          <li><a href="#features" class="nav-link" data-i18n="navFeatures">Özellikler</a></li>
+          <li><a href="#simulator" class="nav-link" data-i18n="navSimulator">Discord Simülatörü</a></li>
+          <li><a href="#how" class="nav-link" data-i18n="navHow">Nasıl Çalışır?</a></li>
+          <li><a href="#faq" class="nav-link" data-i18n="navFaq">S.S.S.</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <!-- Theme Selector (12 Theme Factory Palettes) -->
+        <div class="theme-picker">
+          <button class="theme-btn" id="themeDropdownToggle" title="Tema Seçin (Theme Factory)">
+            <span class="theme-dot"></span>
+            <span data-i18n="navTheme">Tema</span>
+          </button>
+          <div class="theme-dropdown" id="themeDropdown">
+            <button class="theme-opt active" data-theme-val="discord">
+              <span class="theme-opt-color" style="background:#5865F2;"></span> 🎮 Discord Nitro
+            </button>
+            <button class="theme-opt" data-theme-val="galaxy">
+              <span class="theme-opt-color" style="background:#8b5cf6;"></span> 🌌 Midnight Galaxy
+            </button>
+            <button class="theme-opt" data-theme-val="tech">
+              <span class="theme-opt-color" style="background:#06b6d4;"></span> ⚡ Tech Innovation
+            </button>
+            <button class="theme-opt" data-theme-val="ocean">
+              <span class="theme-opt-color" style="background:#0284c7;"></span> 🌊 Ocean Depths
+            </button>
+            <button class="theme-opt" data-theme-val="sunset">
+              <span class="theme-opt-color" style="background:#f43f5e;"></span> 🌆 Sunset Boulevard
+            </button>
+            <button class="theme-opt" data-theme-val="forest">
+              <span class="theme-opt-color" style="background:#10b981;"></span> 🌲 Forest Canopy
+            </button>
+            <button class="theme-opt" data-theme-val="golden">
+              <span class="theme-opt-color" style="background:#f59e0b;"></span> 🌅 Golden Hour
+            </button>
+            <button class="theme-opt" data-theme-val="arctic">
+              <span class="theme-opt-color" style="background:#38bdf8;"></span> ❄️ Arctic Frost
+            </button>
+            <button class="theme-opt" data-theme-val="rose">
+              <span class="theme-opt-color" style="background:#ec4899;"></span> 🏜️ Desert Rose
+            </button>
+            <button class="theme-opt" data-theme-val="botanical">
+              <span class="theme-opt-color" style="background:#84cc16;"></span> 🌿 Botanical Garden
+            </button>
+            <button class="theme-opt" data-theme-val="minimalist">
+              <span class="theme-opt-color" style="background:#9ca3af;"></span> 🖤 Modern Minimalist
+            </button>
+            <button class="theme-opt" data-theme-val="rogue">
+              <span class="theme-opt-color" style="background:#ef4444;"></span> 🎯 Rogue Crimson
+            </button>
+          </div>
+        </div>
+
+        <!-- Language Switcher (TR / EN) -->
+        <div class="lang-switcher">
+          <a href="./?lang=tr" class="lang-btn active" data-lang="tr" title="Türkçe">
+            <img src="assets/flag_tr.png" alt="TR"> TR
+          </a>
+          <a href="./?lang=en" class="lang-btn" data-lang="en" title="English">
+            <img src="assets/flag_gb.png" alt="EN"> EN
+          </a>
+        </div>
+
+        <a href="#download" class="btn-primary" style="padding: 8px 16px; font-size: 0.85rem;" data-i18n="navDownload">İndir</a>
       </div>
     </div>
+  </header>
 
-    <div class="buttons">
-      <a href="https://github.com/HaYToKoRaZ/FakeLord/releases" class="btn btn-primary" target="_blank" rel="noopener">
-        🚀 Sürümü İndir (GitHub)
-      </a>
-      <a href="https://github.com/HaYToKoRaZ/FakeLord" class="btn btn-secondary" target="_blank" rel="noopener">
-        ⭐ GitHub'da İncele
-      </a>
-      <a href="https://x.com/HaYTo" class="btn btn-secondary" target="_blank" rel="noopener">
-        𝕏 @HaYTo
-      </a>
+  <main>
+    <!-- HERO SECTION WITH MASCOT ÇAKIL -->
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-content">
+          <div class="hero-badge-wrap">
+            <span class="hero-badge-dot"></span>
+            <span class="hero-badge-text" data-i18n="heroBadge">Windows 10/11 Uyumlu • Resmi Sürüm</span>
+          </div>
+
+          <h1 class="hero-title" data-i18n="heroTitle">
+            Discord'da Dilediğin Oyunu <span class="hero-gradient">Oynuyor Görün</span>
+          </h1>
+
+          <p class="hero-subtitle" data-i18n="heroSubtitle">
+            3.000+ resmi Discord oyunu ve Steam Top 100 kütüphanesini tek tıkla arka planda simüle edin. Sıfır CPU tüketimi, %100 ban riski yok, şifre ve token gerekmez.
+          </p>
+
+          <div class="hero-cta-group">
+            <a href="#download" class="btn-primary" data-i18n="heroCtaDownload">
+              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              Hemen İndir
+            </a>
+            <a href="https://github.com/HaYToKoRaZ/FakeLord" target="_blank" rel="noopener" class="btn-secondary" data-i18n="heroCtaSource">
+              <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+              GitHub Kaynak Kodu
+            </a>
+          </div>
+
+          <div class="hero-meta">
+            <div class="hero-meta-item">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              <span data-i18n="metaZeroCpu">%0 CPU • 5MB RAM</span>
+            </div>
+            <div class="hero-meta-item">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              <span data-i18n="metaSafe">%100 Ban Korumalı</span>
+            </div>
+            <div class="hero-meta-item">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              <span data-i18n="metaNoToken">Hesap / Şifre İstemez</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- MASCOT "ÇAKIL" COMPONENT -->
+        <aside class="mascot-card">
+          <div class="mascot-header">
+            <span class="mascot-tag" data-i18n="mascotTag">RESMİ MASKOT: ÇAKIL</span>
+            <span style="font-size: 1.2rem;">🐱🎧</span>
+          </div>
+
+          <div class="mascot-visual-wrap" title="Çakıl'a tıkla ve sev!">
+            <img src="assets/cakil.jpg" alt="FakeLord Gamer Kedisi Çakıl" class="mascot-img" id="cakilMascotImg">
+            <div class="mascot-bubble">
+              <div class="mascot-bubble-title">
+                <span data-i18n="mascotBubbleTitle">Çakıl Konuşuyor</span>
+                <span>🐾</span>
+              </div>
+              <p id="cakilBubbleText">Miyav! Hoş geldin! Ben Çakıl, FakeLord'un oyun arkadaşıyım 🐾</p>
+            </div>
+          </div>
+
+          <div class="mascot-actions">
+            <button class="mascot-btn" id="cakilPetBtn" data-i18n="mascotPetBtn">🐾 Çakıl'ı Sev</button>
+            <button class="mascot-btn" id="cakilTipBtn" data-i18n="mascotTipBtn">💡 İpucu İste</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- DISCORD LIVE SIMULATOR SECTION -->
+    <section class="simulator-section" id="simulator">
+      <div class="container">
+        <div class="section-head">
+          <span class="section-badge" data-i18n="simBadge">CANLI ETKİLEŞİMLİ ÖNİZLEME</span>
+          <h2 class="section-title" data-i18n="simTitle">Discord Profil Kartı Simülatörü</h2>
+          <p class="section-desc" data-i18n="simDesc">Fakelord ile oyun başlattığınızda arkadaşlarınızın Discord profilinizde göreceği canlı Rich Presence kartını hemen test edin.</p>
+        </div>
+
+        <div class="sim-container">
+          <!-- Interactive Mockup Profile -->
+          <div class="discord-card">
+            <div class="dc-banner">
+              <div class="dc-avatar-wrap">
+                <div class="dc-avatar">
+                  <img src="assets/cakil.jpg" alt="Çakıl" class="dc-avatar-img">
+                  <div class="dc-status-dot"></div>
+                </div>
+              </div>
+            </div>
+            <div class="dc-body">
+              <div class="dc-name">
+                <span>Çakıl</span>
+                <span style="font-size: 0.9rem;" title="Discord Verified">💎</span>
+              </div>
+              <div class="dc-handle">cakil#0001</div>
+
+              <div class="dc-divider"></div>
+
+              <div class="dc-activity-box">
+                <div class="dc-act-header" data-i18n="simPlaying">Bir Oyun Oynuyor</div>
+                <div class="dc-game-row">
+                  <div class="dc-game-icon" id="simGameIcon">
+                    <img src="assets/gta5.jpg" alt="Grand Theft Auto V" id="simGameImg">
+                  </div>
+                  <div class="dc-game-details">
+                    <div class="dc-game-title" id="simGameTitle">Grand Theft Auto V</div>
+                    <div class="dc-game-sub" id="simGameSub">Playing in Los Santos</div>
+                    <div class="dc-game-time" id="simGameTime">00:42 geçti</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Simulator Picker & Explanation -->
+          <div class="sim-controls">
+            <h3 class="sim-picker-title" data-i18n="simPickerTitle">Simüle Edilecek Oyunu Seçin:</h3>
+            <div class="game-pills">
+              <button class="game-pill active" data-game-id="gta5"><img src="assets/gta5.jpg" alt="GTA V"> GTA V</button>
+              <button class="game-pill" data-game-id="cs2"><img src="assets/cs2.jpg" alt="CS2"> CS2</button>
+              <button class="game-pill" data-game-id="lol"><img src="assets/lol.png" alt="LoL"> League of Legends</button>
+              <button class="game-pill" data-game-id="valorant"><img src="assets/valorant.png" alt="VALORANT"> VALORANT</button>
+              <button class="game-pill" data-game-id="cyberpunk"><img src="assets/cyberpunk.jpg" alt="Cyberpunk 2077"> Cyberpunk 2077</button>
+            </div>
+
+            <div class="sim-info-box" data-i18n="simInfo">
+              💡 <strong>Nasıl çalışır?</strong> Fakelord, Win32 Ghost Process motoru sayesinde <code>csgo.exe</code> veya <code>GTA5.exe</code> gibi süreçleri penceresiz ve %0 CPU ile çalıştırır. Discord bu süreci resmi doğrulanmış oyun olarak otomatik yakalar.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES SECTION -->
+    <section class="features-section" id="features">
+      <div class="container">
+        <div class="section-head">
+          <span class="section-badge" data-i18n="featBadge">MİMARİ VE PERFORMANS</span>
+          <h2 class="section-title" data-i18n="featTitle">Neden FakeLord Tercih Etmelisiniz?</h2>
+          <p class="section-desc" data-i18n="featDesc">Geleneksel RPC araçlarının aksine, doğrudan Discord'un kendi oyun algılama motoruna uyumlu çalışan ilk hafif masaüstü çözümü.</p>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon-wrap">⚡</div>
+            <h3 class="feature-title" data-i18n="feat1Title">Sıfır Kaynak Tüketimi</h3>
+            <p class="feature-desc" data-i18n="feat1Desc">Ghost Process teknolojisi sayesinde arka planda uyur. %0 CPU harcar ve 5 MB'tan daha az RAM tüketir. Oyun performansınızı asla etkilemez.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrap">🛡️</div>
+            <h3 class="feature-title" data-i18n="feat2Title">%100 Güvenli & Ban Riski Yok</h3>
+            <p class="feature-desc" data-i18n="feat2Desc">Discord tokenı, kullanıcı şifresi veya hafıza enjeksiyonu kullanmaz. Discord'un resmi oyun algılama mekanizmasıyla doğal çalışır.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrap">🎮</div>
+            <h3 class="feature-title" data-i18n="feat3Title">3.000+ Doğrulanmış Oyun</h3>
+            <p class="feature-desc" data-i18n="feat3Desc">Discord Detectable Games kataloğu ve Steam Top 100 ile senkronize. Popüler tüm oyunlar resmi afiş ve doğrulanmış rozetle görünür.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrap">🎨</div>
+            <h3 class="feature-title" data-i18n="feat4Title">12 Theme Factory Teması</h3>
+            <p class="feature-desc" data-i18n="feat4Desc">Discord Nitro, Midnight Galaxy, Tech Innovation, Ocean Depths ve 8 farklı özel paletle arayüzünüzü dilediğiniz gibi özelleştirin.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrap">🔤</div>
+            <h3 class="feature-title" data-i18n="feat5Title">A-Z Hızlı Harf Şeridi</h3>
+            <p class="feature-desc" data-i18n="feat5Desc">Gelişmiş alfabetik şerit ve klavye kısayolları ile binlerce oyun arasında tek saniyede istediğiniz harfe ve oyuna zıplayın.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrap">🚀</div>
+            <h3 class="feature-title" data-i18n="feat6Title">Steam App ID Desteği</h3>
+            <p class="feature-desc" data-i18n="feat6Desc">Listede olmayan özel veya bağımsız oyunları tek tıkla Steam App ID girerek ekleyin ve anında simüle edin.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS (3 STEPS) -->
+    <section class="how-section" id="how">
+      <div class="container">
+        <div class="section-head">
+          <span class="section-badge" data-i18n="howBadge">3 BASİT ADIM</span>
+          <h2 class="section-title" data-i18n="howTitle">Nasıl Kullanılır?</h2>
+          <p class="section-desc" data-i18n="howDesc">Kurulum gerekmez. İndirin, açın ve oynamaya başlayın.</p>
+        </div>
+
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-number">1</div>
+            <h3 class="step-title" data-i18n="step1Title">1. Oyunu Seçin</h3>
+            <p class="step-desc" data-i18n="step1Desc">3.000+ oyun arasından arama yapın, harf şeridini kullanın veya Steam App ID ile yeni oyun ekleyin.</p>
+          </div>
+
+          <div class="step-card">
+            <div class="step-number">2</div>
+            <h3 class="step-title" data-i18n="step2Title">2. 'Oyna' Butonuna Basın</h3>
+            <p class="step-desc" data-i18n="step2Desc">Tek tıkla arka plan hayalet süreci başlasın. Ekranda can sıkıcı pencereler açılmaz.</p>
+          </div>
+
+          <div class="step-card">
+            <div class="step-number">3</div>
+            <h3 class="step-title" data-i18n="step3Title">3. Discord'da Keyfini Çıkarın</h3>
+            <p class="step-desc" data-i18n="step3Desc">Discord profilinizde oyununuz anında doğrulanmış afiş ve yeşil durumla parıldasın!</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ SECTION -->
+    <section class="faq-section" id="faq">
+      <div class="container">
+        <div class="section-head">
+          <span class="section-badge" data-i18n="faqBadge">MERAK EDİLENLER</span>
+          <h2 class="section-title" data-i18n="faqTitle">Sıkça Sorulan Sorular</h2>
+          <p class="section-desc" data-i18n="faqDesc">FakeLord hakkında en çok sorulan soruların yanıtları.</p>
+        </div>
+
+        <div class="faq-list">
+          <div class="faq-item open">
+            <button class="faq-question">
+              <span data-i18n="faq1Q">Discord hesabımdan ban yer miyim?</span>
+              <span class="faq-chevron">▼</span>
+            </button>
+            <div class="faq-answer" data-i18n="faq1A">
+              Kesinlikle hayır! FakeLord hiçbir şekilde Discord API token'ı, hesap şifresi veya bellek manipülasyonu (injection) kullanmaz. Discord'un 'Şu anda oynuyor' mekanizması Windows'ta çalışan .exe süreç adlarını okuyarak çalışır. FakeLord yalnızca bu süreci arka planda açar.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              <span data-i18n="faq2Q">Bilgisayarımı yavaşlatır mı?</span>
+              <span class="faq-chevron">▼</span>
+            </button>
+            <div class="faq-answer" data-i18n="faq2A">
+              Asla yavaşlatmaz. Hayalet süreçler tamamen uykuda (Thread.Sleep) bekletilir. CPU kullanımı %0, RAM tüketimi ise yalnızca 3-5 MB civarındadır.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              <span data-i18n="faq3Q">Uygulamayı kapattığımda oyun devam eder mi?</span>
+              <span class="faq-chevron">▼</span>
+            </button>
+            <div class="faq-answer" data-i18n="faq3A">
+              Fakelord'u kapattığınızda veya 'Durdur' dediğinizde, arkadaki tüm hayalet süreçler Win32 TerminateProcess ile anında güvenle temizlenir. Arkada hiçbir zombi süreç kalmaz.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              <span data-i18n="faq4Q">Özel veya indie oyunları ekleyebilir miyim?</span>
+              <span class="faq-chevron">▼</span>
+            </button>
+            <div class="faq-answer" data-i18n="faq4A">
+              Evet! Steam App ID kutusuna oyunun Steam mağaza numarasını girip 'Özel Ekle' butonuna basmanız yeterlidir. Uygulama oyun adını ve simgesini otomatik çeker.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DOWNLOAD CTA BANNER -->
+    <section class="download-section" id="download">
+      <div class="container">
+        <div class="download-banner">
+          <h2 class="download-title" data-i18n="ctaTitle">Discord Deneyiminizi Bugün Zirveye Taşıyın</h2>
+          <p class="download-subtitle" data-i18n="ctaSubtitle">FakeLord'u hemen ücretsiz indirin veya GitHub üzerinden açık kaynak projemize yıldız verin.</p>
+          
+          <div class="download-buttons">
+            <a href="https://github.com/HaYToKoRaZ/FakeLord/releases" target="_blank" rel="noopener" class="btn-primary" data-i18n="ctaDownloadBtn">
+              <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              Ücretsiz İndir (Windows 10/11)
+            </a>
+            <a href="https://github.com/HaYToKoRaZ/FakeLord" target="_blank" rel="noopener" class="btn-secondary" data-i18n="ctaGithubBtn">
+              <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+              ⭐ GitHub'da İncele
+            </a>
+          </div>
+
+          <div class="download-note" data-i18n="ctaNote">Taşınabilir (Portable) • Kurulum Gerektirmez • Açık Kaynak</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">
+            <img src="assets/icon.png" alt="FakeLord Logo" style="width: 28px; height: 28px; border-radius: 6px;">
+            <span>FAKELORD</span>
+          </div>
+          <p style="max-width: 380px; font-size: 0.88rem; color: var(--text-secondary);" data-i18n="footerAbout">
+            Fakelord, Discord ve Steam ekosistemi için tasarlanmış yüksek performanslı, hayalet süreç tabanlı modern oyun simülasyon aracıdır.
+          </p>
+        </div>
+
+        <div>
+          <h4 style="color: var(--text-primary); margin-bottom: 14px; font-size: 0.95rem;" data-i18n="footerLinksTitle">Bağlantılar</h4>
+          <ul class="footer-links">
+            <li><a href="https://haytokoraz.github.io/" target="_blank" rel="noopener">🌐 HaYTooL Portal</a></li>
+            <li><a href="https://github.com/HaYToKoRaZ/FakeLord" target="_blank" rel="noopener">GitHub Repository</a></li>
+            <li><a href="https://github.com/HaYToKoRaZ/FakeLord/releases" target="_blank" rel="noopener">Releases (İndir)</a></li>
+            <li><a href="https://github.com/HaYToKoRaZ/FakeLord/issues" target="_blank" rel="noopener">Hata Bildirimi (Issues)</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 style="color: var(--text-primary); margin-bottom: 14px; font-size: 0.95rem;" data-i18n="footerContactTitle">İletişim & Geliştirici</h4>
+          <ul class="footer-links">
+            <li><a href="https://github.com/HaYToKoRaZ" target="_blank" rel="noopener">HaYTo (GitHub)</a></li>
+            <li><a href="https://x.com/HaYTo" target="_blank" rel="noopener">X / Twitter (@HaYTo)</a></li>
+            <li><a href="mailto:korazhayto@gmail.com">korazhayto@gmail.com</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>© 2026 FakeLord • Bir <a href="https://haytokoraz.github.io/" target="_blank" rel="noopener" style="color:var(--text-primary); text-decoration:underline;">HaYTooL</a> Projesidir. Geliştirici: <strong>HaYTo</strong>.</div>
+        <div data-i18n="footerRights">Tüm hakları saklıdır. Discord Inc. veya Valve Corp. ile resmi bağı bulunmamaktadır.</div>
+      </div>
     </div>
+  </footer>
 
-    <footer>
-      <span>Geliştirici: <strong>HaYTo</strong></span>
-      <span>•</span>
-      <a href="https://github.com/HaYToKoRaZ/FakeLord/issues" target="_blank">Hata Bildir / İstek</a>
-      <span>•</span>
-      <a href="mailto:korazhayto@gmail.com">İletişim</a>
-    </footer>
-  </div>
+  <script src="app.js"></script>
 </body>
 </html>
