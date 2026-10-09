@@ -122,6 +122,14 @@ namespace FakelordUI
                 _ = AutoUpdateDiscordCatalogAsync();
             }
 
+            Loaded += (s, e) =>
+            {
+                if (!IniManager.StartMinimized)
+                {
+                    Activate();
+                }
+            };
+
             if (IniManager.StartMinimized)
             {
                 Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(() =>
