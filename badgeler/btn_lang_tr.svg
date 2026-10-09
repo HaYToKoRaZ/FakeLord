@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="48" viewBox="0 0 220 48" role="img" aria-label="Türkçe Dokümantasyon">
+  <defs>
+    <linearGradient id="bgTr" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E1420"/>
+      <stop offset="100%" stop-color="#2D1A30"/>
+    </linearGradient>
+    <linearGradient id="borderTr" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F43F5E"/>
+      <stop offset="100%" stop-color="#E11D48"/>
+    </linearGradient>
+  </defs>
+  <rect x="1" y="1" width="218" height="46" rx="10" fill="url(#bgTr)" stroke="url(#borderTr)" stroke-width="1.6"/>
+  <text x="24" y="30" font-size="20">🇹🇷</text>
+  <g font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">
+    <text x="56" y="23" fill="#FFFFFF" font-size="13" font-weight="700" letter-spacing="0.2">Türkçe Rehber</text>
+    <text x="56" y="37" fill="#FDA4AF" font-size="10.5" font-weight="500">Türkçe Oku →</text>
+  </g>
+</svg>

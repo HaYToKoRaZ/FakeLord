@@ -1,16 +1,24 @@
 <div align="center">
 
-  <img src="badgeler/icon.png" width="100" height="100" alt="FakeLord Logo" style="border-radius: 20px; box-shadow: 0 8px 24px rgba(88, 101, 242, 0.4);" />
+  <img src="badgeler/icon.png" width="105" height="105" alt="FakeLord Logo" style="border-radius: 22px; box-shadow: 0 8px 28px rgba(88, 101, 242, 0.45);" />
 
   # 🎮 FakeLord
   ### Lightweight & Smart Discord Game Activity Simulator
   **Show any game on your Discord profile with zero hardware load & 100% background stealth.**
 
+  <br />
+
   <p align="center">
-    <a href="#-english-documentation"><img src="https://img.shields.io/badge/Language-English-blue?style=flat-square" alt="English" /></a>
-    <a href="#-türkçe-dokümantasyon"><img src="https://img.shields.io/badge/Dil-Türkçe-red?style=flat-square" alt="Türkçe" /></a>
-    <a href="https://haytool.online/FakeLord/"><img src="https://img.shields.io/badge/Website-haytool.online%2FFakeLord-5865F2?style=flat-square" alt="Website" /></a>
+    <a href="#-english-documentation">
+      <img src="badgeler/btn_lang_en.svg" alt="English Documentation" height="48" />
+    </a>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="#-türkçe-dokümantasyon">
+      <img src="badgeler/btn_lang_tr.svg" alt="Türkçe Dokümantasyon" height="48" />
+    </a>
   </p>
+
+  <br />
 
   <p align="center">
     <img src="badgeler/badge_latest_downloads.svg" alt="Release" />
@@ -20,11 +28,6 @@
     <img src="badgeler/badge_discord.svg" alt="Discord" />
     <img src="badgeler/badge_status.svg" alt="Build Status" />
     <img src="badgeler/badge_license.svg" alt="License" />
-  </p>
-
-  <p align="center">
-    <strong><a href="#-english-documentation">🇬🇧 Jump to English</a></strong> &nbsp;•&nbsp; 
-    <strong><a href="#-türkçe-dokümantasyon">🇹🇷 Türkçe Bölüme Git</a></strong>
   </p>
 
 </div>
@@ -49,7 +52,7 @@ Using an ultra-lightweight **Ghost Process Architecture**, FakeLord simulates of
 
 <div align="center">
   <img src="ekrangoruntuleri/ingilizce-ekran-goruntusu.png" alt="FakeLord English UI Screenshot" width="850" style="border-radius: 12px; border: 1px solid #232D42; box-shadow: 0 10px 30px rgba(0,0,0,0.6);" />
-  <p><em>FakeLord v1.4 English Interface — Modern Discord & Steam integration with real-time profile preview.</em></p>
+  <p><em>FakeLord English Interface — Modern Discord & Steam integration with real-time profile preview.</em></p>
 </div>
 
 ---
@@ -62,7 +65,7 @@ Using an ultra-lightweight **Ghost Process Architecture**, FakeLord simulates of
 - **🔍 Custom Steam AppID Search:** Enter any Steam AppID (e.g., `730` for CS2) to pull its title, cover art, and executable name on the fly.
 - **⚡ Ghost Runner Isolation:** Clones and runs invisible processes using `HaYTooL.exe` template. No 3D render, no GPU burden, no memory leaks.
 - **⭐ Dynamic Favorites System:** Keep your go-to titles pinned on top with automated bar expansion.
-- **🔔 Modern Cyberpunk System Tray (v1.4):** Anti-aliased dark-mode context menu with live game status, stop button, quick launch favorites, and settings.
+- **🔔 Modern Cyberpunk System Tray:** Anti-aliased dark-mode context menu with live game status, stop button, quick launch favorites, and settings.
 - **🎨 8 Premium Themes:** Obsidian Abyss, Discord Nitro, Cyber Matrix, Synthwave Neon, and more.
 - **🔄 Auto-Updater & GitHub Release Checker:** Direct notification when a new version is released.
 - **🛡️ 100% Discord ToS Safe:** Zero account credentials, tokens, or injection needed. Zero ban risk.
@@ -71,9 +74,9 @@ Using an ultra-lightweight **Ghost Process Architecture**, FakeLord simulates of
 
 ## 🚀 Download & Installation
 
-1. Download the latest version from the [Releases](https://github.com/HaYToKoRaZ/FakeLord/releases) section:
-   - **`FakeLord_Setup_v1.4.exe`**: Standard Windows installer with start menu and desktop shortcuts.
-   - **`FakeLord_v1.4_Portable.zip`**: Portable version, extract and run anywhere without installation.
+1. Download the latest release from the [Releases](https://github.com/HaYToKoRaZ/FakeLord/releases) section:
+   - **`FakeLord_Setup.exe`**: Standard Windows installer with start menu and desktop shortcuts.
+   - **`FakeLord_Portable.zip`**: Portable version, extract and run anywhere without installation.
 2. Launch `FakelordUI.exe`.
 3. Select any game from the list (or search by title/AppID).
 4. Click **▶ Play on Discord** (or double-click the game card).
@@ -103,7 +106,7 @@ Gelişmiş **Hayalet Süreç (Ghost Process)** mimarisi sayesinde, sistemde **%0
 
 <div align="center">
   <img src="ekrangoruntuleri/turkce-ekran-goruntusu.png" alt="FakeLord Türkçe Arayüz Ekran Görüntüsü" width="850" style="border-radius: 12px; border: 1px solid #232D42; box-shadow: 0 10px 30px rgba(0,0,0,0.6);" />
-  <p><em>FakeLord v1.4 Türkçe Arayüzü — Canlı Discord kart önizlemesi, dinamik favoriler ve hızlı filtreler.</em></p>
+  <p><em>FakeLord Türkçe Arayüzü — Canlı Discord kart önizlemesi, dinamik favoriler ve hızlı filtreler.</em></p>
 </div>
 
 ---
@@ -116,7 +119,7 @@ Gelişmiş **Hayalet Süreç (Ghost Process)** mimarisi sayesinde, sistemde **%0
 - **🔍 Manuel Steam AppID Desteği:** Herhangi bir oyunun AppID numarasını yazarak kapak görseli ve exe adıyla birlikte anında ekleyin.
 - **⚡ Sıfır Kaynak Tüketimi (Ghost Runner):** `HaYTooL.exe` şablonu üzerinden arka planda 3D render veya döngü olmadan çalışan hayalet süreç mimarisi.
 - **⭐ Dinamik Otomatik Genişleyen Favoriler:** Favori oyunlarınız için akıllı, otomatik genişleyen ergonomik üst bar.
-- **🔔 Yenilenmiş Modern Sistem Tepsisi (v1.4):** Discord Cyber Dark temalı, canlı durum göstergeli, favorileri hızlı başlatma destekli sağ tık menüsü.
+- **🔔 Yenilenmiş Modern Sistem Tepsisi:** Discord Cyber Dark temalı, canlı durum göstergeli, favorileri hızlı başlatma destekli sağ tık menüsü.
 - **🎨 8 Farklı Tema Seçeneği:** Obsidyen Gece, Discord Nitro, Matris, Siberpunk ve daha fazlası.
 - **🔄 Otomatik GitHub Sürüm Denetimi:** Yeni güncelleme çıktığında uygulama içinden toast bildirimi.
 - **🛡️ %100 Discord Kurallarıyla Uyumlu:** Hesap bilgisi veya şifre istemez, bellek enjeksiyonu yapmaz, ban riski kesinlikle yoktur.
@@ -126,8 +129,8 @@ Gelişmiş **Hayalet Süreç (Ghost Process)** mimarisi sayesinde, sistemde **%0
 ## 🚀 İndirme ve Hızlı Başlangıç
 
 1. En son sürümü [Releases](https://github.com/HaYToKoRaZ/FakeLord/releases) sayfasından indirin:
-   - **`FakeLord_Setup_v1.4.exe`**: Klasik Windows kurulum sihirbazı.
-   - **`FakeLord_v1.4_Portable.zip`**: Kurulum gerektirmeyen taşınabilir sürüm.
+   - **`FakeLord_Setup.exe`**: Klasik Windows kurulum sihirbazı.
+   - **`FakeLord_Portable.zip`**: Kurulum gerektirmeyen taşınabilir sürüm.
 2. `FakelordUI.exe` dosyasını çalıştırın.
 3. Listeden istediğiniz oyuna tıklayın veya arama kutusuna adını yazın.
 4. **▶ Discord'da Oyna** butonuna basın (veya oyuna çift tıklayın).
