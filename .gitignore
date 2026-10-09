@@ -1,0 +1,23 @@
+# .gitignore - Fakelord Proje Kökü
+bin/
+obj/
+**/bin/
+**/obj/
+*.user
+*.suo
+.vs/
+.vscode/
+config.ini
+**/config.ini
+*.log
+derlenmis/
+TestLab/
+websites/
+.agents/
+
+# Yerel Betikler ve Yardımcılar (GitHub'a gitmeyecek)
+ANAYASA.md
+derle.ps1
+push-main.ps1
+push-websites.ps1
+icon.png

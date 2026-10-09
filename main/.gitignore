@@ -1,0 +1,11 @@
+# Fakelord main/.gitignore
+bin/
+obj/
+FakelordUI/bin/
+FakelordUI/obj/
+*.user
+*.suo
+.vs/
+.vscode/
+config.ini
+*.log
