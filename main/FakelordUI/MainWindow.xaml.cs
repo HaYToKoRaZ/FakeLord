@@ -1435,7 +1435,7 @@ namespace FakelordUI
                 menu.Padding = new Forms.Padding(4, 5, 4, 5);
 
                 // 1. Marka & Versiyon Başlığı (Tıklanırsa pencereyi öne getirir)
-                var brandItem = new Forms.ToolStripMenuItem("🎮 FakeLord v1.4");
+                var brandItem = new Forms.ToolStripMenuItem("🎮 FakeLord v1.5");
                 brandItem.Tag = "header_brand";
                 brandItem.Font = new Drawing.Font("Segoe UI", 9.5f, Drawing.FontStyle.Bold);
                 brandItem.Padding = new Forms.Padding(12, 5, 12, 4);
@@ -1727,7 +1727,7 @@ namespace FakelordUI
                 if (string.IsNullOrWhiteSpace(tagName)) return;
 
                 string cleanRemote = tagName.Trim().TrimStart('v', 'V');
-                Version currentVer = new Version(1, 4, 0);
+                Version currentVer = new Version(1, 5, 0);
 
                 if (Version.TryParse(cleanRemote, out var remoteVer) || 
                     Version.TryParse(cleanRemote + ".0", out remoteVer))
