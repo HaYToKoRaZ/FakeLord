@@ -44,6 +44,9 @@ namespace FakelordUI
         private bool _isExplicitExit = false;
         private bool _trayBalloonShownOnce = false;
 
+        private readonly Dictionary<char, Button> _alphaButtons = new();
+        private char? _currentActiveAlphaChar = null;
+
         private record ThemeInfo(
             string Key,
             string TrName,
@@ -52,18 +55,24 @@ namespace FakelordUI
             string CardBg,
             string InnerBg,
             string BorderCol,
-            string AccentCol);
+            string AccentCol,
+            string AccentHover,
+            string TextAccent);
 
         private static readonly List<ThemeInfo> AvailableThemes = new()
         {
-            new("ObsidianAbyss", "🌑 Obsidyen Gece", "🌑 Obsidian Abyss", "#05070A", "#0B0F17", "#101622", "#1E2638", "#00F0FF"),
-            new("DiscordNitro", "🎮 Discord Nitro", "🎮 Discord Nitro", "#1E1F22", "#2B2D31", "#313338", "#3E4249", "#5865F2"),
-            new("VaporwaveSunset", "🌆 Siber Alacakaranlık", "🌆 Vaporwave Sunset", "#0D0B18", "#161329", "#1F1B38", "#322B59", "#F43F5E"),
-            new("AbyssalOcean", "🌌 Derin Okyanus", "🌌 Abyssal Ocean", "#060B14", "#0C1527", "#13223D", "#1E355F", "#38BDF8"),
-            new("RogueCrimson", "🎯 Hayalet Kızıl", "🎯 Rogue Crimson", "#0E0E12", "#181820", "#22222E", "#38384A", "#FA4454"),
-            new("MatrixEmerald", "🟢 Matris Zümrüt", "🟢 Matrix Emerald", "#070D09", "#0E1A13", "#15261C", "#1F3D2C", "#10B981"),
-            new("SolarFlare", "⚡ Güneş Patlaması", "⚡ Solar Flare", "#0F0C08", "#1A1610", "#241E16", "#3D3325", "#F59E0B"),
-            new("AmethystNight", "🔮 Ametist Gecesi", "🔮 Amethyst Night", "#0B0711", "#150E22", "#1E1430", "#342354", "#A855F7")
+            new("DiscordNitro", "🎮 Discord Nitro", "🎮 Discord Nitro", "#1E1F22", "#2B2D31", "#313338", "#3E4249", "#5865F2", "#4752C4", "#FFFFFF"),
+            new("MidnightGalaxy", "🌌 Gece Galaksisi", "🌌 Midnight Galaxy", "#070612", "#0E0C22", "#151334", "#29245C", "#8B5CF6", "#7C3AED", "#FFFFFF"),
+            new("TechInnovation", "⚡ Siber İnovasyon", "⚡ Tech Innovation", "#050811", "#0B1220", "#111C30", "#1D3252", "#00F0FF", "#00D4E2", "#050811"),
+            new("OceanDepths", "🌊 Okyanus Derinlikleri", "🌊 Ocean Depths", "#040914", "#081426", "#0E203C", "#183764", "#38BDF8", "#0EA5E9", "#040914"),
+            new("SunsetBoulevard", "🌆 Günbatımı Bulvarı", "🌆 Sunset Boulevard", "#0E0812", "#190F20", "#25172F", "#432654", "#F43F5E", "#E11D48", "#FFFFFF"),
+            new("ForestCanopy", "🌲 Zümrüt Orman", "🌲 Forest Canopy", "#040D08", "#091A11", "#0F281B", "#19422D", "#10B981", "#059669", "#FFFFFF"),
+            new("GoldenHour", "🌅 Altın Saat", "🌅 Golden Hour", "#0C0904", "#181208", "#241C0E", "#3F3018", "#F59E0B", "#D97706", "#0C0904"),
+            new("ArcticFrost", "❄️ Kutup Ayazı", "❄️ Arctic Frost", "#05090F", "#0A131E", "#101D2C", "#1B3248", "#67E8F9", "#22D3EE", "#05090F"),
+            new("DesertRose", "🏜️ Çöl Gülü", "🏜️ Desert Rose", "#0E080C", "#190F17", "#251723", "#44263E", "#FB7185", "#F43F5E", "#FFFFFF"),
+            new("BotanicalGarden", "🌿 Botanik Bahçe", "🌿 Botanical Garden", "#050B08", "#0B1711", "#12241C", "#1E3E2F", "#34D399", "#10B981", "#050B08"),
+            new("ModernMinimalist", "🖤 Modern Minimalist", "🖤 Modern Minimalist", "#08090C", "#111319", "#191C25", "#2B303E", "#E2E8F0", "#CBD5E1", "#08090C"),
+            new("RogueCrimson", "🎯 Hayalet Kızıl", "🎯 Rogue Crimson", "#0C0608", "#160B0F", "#211117", "#3D1B27", "#FF2A54", "#E01E45", "#FFFFFF")
         };
 
         public MainWindow()
@@ -121,14 +130,6 @@ namespace FakelordUI
             {
                 _ = AutoUpdateDiscordCatalogAsync();
             }
-
-            Loaded += (s, e) =>
-            {
-                if (!IniManager.StartMinimized)
-                {
-                    Activate();
-                }
-            };
 
             if (IniManager.StartMinimized)
             {
@@ -236,6 +237,8 @@ namespace FakelordUI
             UpdateTabButtonsUI();
             UpdateGameCountBadge();
             GamesVisibleList.ItemsSource = _currentViewGames;
+            InitializeAlphaJumpBar();
+            UpdateAlphaJumpAvailability();
 
             // Son seçilen oyun veya ilk oyun (tüm oyunlarda)
             var last = _allGames.FirstOrDefault(g => g.ExeName.Equals(IniManager.LastGame, StringComparison.OrdinalIgnoreCase))
@@ -246,6 +249,7 @@ namespace FakelordUI
                 SelectGame(last);
                 GamesVisibleList.SelectedItem = last;
                 GamesVisibleList.ScrollIntoView(last);
+                UpdateActiveAlphaFromGame(last);
             }
         }
 
@@ -549,10 +553,11 @@ namespace FakelordUI
         #region Steam Entegrasyonları (Top 100, Yüklü Oyunlar, Özel AppID)
         private void UpdateTabButtonsUI()
         {
-            var activeBg = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#5865F2"));
-            var activeFg = Brushes.White;
-            var inactiveBg = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#161B26"));
-            var inactiveFg = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#949BA4"));
+            var currentTheme = AvailableThemes.FirstOrDefault(t => t.Key.Equals(IniManager.Theme, StringComparison.OrdinalIgnoreCase)) ?? AvailableThemes[0];
+            var activeBg = new SolidColorBrush((Color)ColorConverter.ConvertFromString(currentTheme.AccentCol));
+            var activeFg = new SolidColorBrush((Color)ColorConverter.ConvertFromString(currentTheme.TextAccent));
+            var inactiveBg = new SolidColorBrush((Color)ColorConverter.ConvertFromString(currentTheme.InnerBg));
+            var inactiveFg = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#94A3B8"));
 
             BtnTabAll.Background = _activeTab == "All" ? activeBg : inactiveBg;
             BtnTabAll.Foreground = _activeTab == "All" ? activeFg : inactiveFg;
@@ -590,6 +595,7 @@ namespace FakelordUI
                     GamesVisibleList.SelectedIndex = 0;
                 }
             }
+            UpdateAlphaJumpAvailability();
         }
 
         private static bool MatchesGame(GameItem g, string query)
@@ -969,7 +975,19 @@ namespace FakelordUI
 
         private void ApplyTheme(string themeName)
         {
-            var theme = AvailableThemes.FirstOrDefault(t => t.Key.Equals(themeName, StringComparison.OrdinalIgnoreCase))
+            // Eski tema anahtarlarını yeni Theme Factory koleksiyonuna güvenle eşle
+            string normalizedKey = themeName switch
+            {
+                "ObsidianAbyss" => "TechInnovation",
+                "AbyssalOcean" => "OceanDepths",
+                "VaporwaveSunset" => "SunsetBoulevard",
+                "MatrixEmerald" => "ForestCanopy",
+                "SolarFlare" => "GoldenHour",
+                "AmethystNight" => "MidnightGalaxy",
+                _ => themeName
+            };
+
+            var theme = AvailableThemes.FirstOrDefault(t => t.Key.Equals(normalizedKey, StringComparison.OrdinalIgnoreCase))
                         ?? AvailableThemes[0];
 
             IniManager.Theme = theme.Key;
@@ -980,49 +998,82 @@ namespace FakelordUI
             var innerBg = (Color)ColorConverter.ConvertFromString(theme.InnerBg);
             var borderCol = (Color)ColorConverter.ConvertFromString(theme.BorderCol);
             var accentCol = (Color)ColorConverter.ConvertFromString(theme.AccentCol);
+            var accentHover = (Color)ColorConverter.ConvertFromString(theme.AccentHover);
+            var textAccent = (Color)ColorConverter.ConvertFromString(theme.TextAccent);
 
-            RootWindow.Background = new SolidColorBrush(winBg);
-            MainCardBorder.Background = new SolidColorBrush(cardBg);
-            MainCardBorder.BorderBrush = new SolidColorBrush(borderCol);
+            var accentBrush = new SolidColorBrush(accentCol);
+            var accentHoverBrush = new SolidColorBrush(accentHover);
+            var textAccentBrush = new SolidColorBrush(textAccent);
+            var winBgBrush = new SolidColorBrush(winBg);
+            var cardBgBrush = new SolidColorBrush(cardBg);
+            var innerBgBrush = new SolidColorBrush(innerBg);
+            var borderBrush = new SolidColorBrush(borderCol);
 
-            FavBorder.Background = new SolidColorBrush(cardBg);
-            FavBorder.BorderBrush = new SolidColorBrush(borderCol);
+            // Dinamik Kaynakları (DynamicResource) Güncelle
+            Resources["ThemeAccentBrush"] = accentBrush;
+            Resources["ThemeAccentHoverBrush"] = accentHoverBrush;
+            Resources["ThemeTextAccentBrush"] = textAccentBrush;
+            Resources["ThemeWinBgBrush"] = winBgBrush;
+            Resources["ThemeCardBgBrush"] = cardBgBrush;
+            Resources["ThemeInnerBgBrush"] = innerBgBrush;
+            Resources["ThemeBorderBrush"] = borderBrush;
 
-            SearchBoxBorder.Background = new SolidColorBrush(innerBg);
-            SearchBoxBorder.BorderBrush = new SolidColorBrush(borderCol);
+            RootWindow.Background = winBgBrush;
+            MainCardBorder.Background = cardBgBrush;
+            MainCardBorder.BorderBrush = borderBrush;
 
-            GameListBorder.Background = new SolidColorBrush(cardBg);
-            GameListBorder.BorderBrush = new SolidColorBrush(borderCol);
+            FavBorder.Background = cardBgBrush;
+            FavBorder.BorderBrush = borderBrush;
 
-            InnerGameCard.Background = new SolidColorBrush(innerBg);
-            InnerGameCard.BorderBrush = new SolidColorBrush(borderCol);
+            SearchBoxBorder.Background = innerBgBrush;
+            SearchBoxBorder.BorderBrush = borderBrush;
 
-            ComboTheme.Background = new SolidColorBrush(innerBg);
-            ComboTheme.BorderBrush = new SolidColorBrush(borderCol);
+            GameListBorder.Background = cardBgBrush;
+            GameListBorder.BorderBrush = borderBrush;
+
+            InnerGameCard.Background = innerBgBrush;
+            InnerGameCard.BorderBrush = borderBrush;
+
+            ComboTheme.Background = innerBgBrush;
+            ComboTheme.BorderBrush = borderBrush;
 
             if (ComboSettingsTheme != null)
             {
-                ComboSettingsTheme.Background = new SolidColorBrush(innerBg);
-                ComboSettingsTheme.BorderBrush = new SolidColorBrush(borderCol);
+                ComboSettingsTheme.Background = innerBgBrush;
+                ComboSettingsTheme.BorderBrush = borderBrush;
             }
 
             if (ComboSettingsLang != null)
             {
-                ComboSettingsLang.Background = new SolidColorBrush(innerBg);
-                ComboSettingsLang.BorderBrush = new SolidColorBrush(borderCol);
+                ComboSettingsLang.Background = innerBgBrush;
+                ComboSettingsLang.BorderBrush = borderBrush;
             }
 
-            AboutCardBorder.Background = new SolidColorBrush(cardBg);
-            AboutCardBorder.BorderBrush = new SolidColorBrush(borderCol);
+            AboutCardBorder.Background = cardBgBrush;
+            AboutCardBorder.BorderBrush = borderBrush;
 
-            SettingsCardBorder.Background = new SolidColorBrush(cardBg);
-            SettingsCardBorder.BorderBrush = new SolidColorBrush(borderCol);
+            SettingsCardBorder.Background = cardBgBrush;
+            SettingsCardBorder.BorderBrush = borderBrush;
 
-            FooterBorder.Background = new SolidColorBrush(winBg);
-            FooterBorder.BorderBrush = new SolidColorBrush(borderCol);
+            FooterBorder.Background = winBgBrush;
+            FooterBorder.BorderBrush = borderBrush;
+
+            if (AlphaJumpBorder != null)
+            {
+                AlphaJumpBorder.Background = innerBgBrush;
+                AlphaJumpBorder.BorderBrush = borderBrush;
+            }
+
+            // 🎯 Vurgu Öğelerini Temayla Senkronize Et
+            BtnStart.Background = accentBrush;
+            BtnStart.Foreground = textAccentBrush;
+            TxtVersionBadge.Foreground = accentBrush;
+            VersionBadgeBorder.BorderBrush = borderBrush;
+            GameCountBadge.Foreground = accentBrush;
 
             UpdateTabButtonsUI();
             SyncSettingsThemeSelection(theme.Key);
+            UpdateAlphaJumpAvailability();
         }
         #endregion
 
@@ -1060,6 +1111,7 @@ namespace FakelordUI
             if (GamesVisibleList.SelectedItem is GameItem selected)
             {
                 SelectGame(selected);
+                UpdateActiveAlphaFromGame(selected);
             }
         }
 
@@ -1070,6 +1122,168 @@ namespace FakelordUI
                 SelectGame(selected);
                 BtnStart_Click(sender, e);
             }
+        }
+        #endregion
+
+        #region A-Z Hızlı Harf Şeridi (Alfabetik Quick Jump)
+        private void InitializeAlphaJumpBar()
+        {
+            if (_alphaButtons.Count > 0 || AlphaJumpGrid == null) return;
+
+            AlphaJumpGrid.Children.Clear();
+            char[] chars = new char[]
+            {
+                '#', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+                'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
+            };
+
+            foreach (char c in chars)
+            {
+                var btn = new Button
+                {
+                    Content = c.ToString(),
+                    Tag = c,
+                    Style = (Style)Resources["AlphaJumpButtonStyle"],
+                    ToolTip = c == '#' ? "# (0-9 & Semboller)" : $"'{c}' harfine git"
+                };
+                btn.Click += (s, e) => JumpToLetter(c);
+                _alphaButtons[c] = btn;
+                AlphaJumpGrid.Children.Add(btn);
+            }
+        }
+
+        private void JumpToLetter(char letter)
+        {
+            if (!string.IsNullOrWhiteSpace(SearchBox.Text))
+            {
+                _isUpdatingSearchText = true;
+                SearchBox.Text = "";
+                _isUpdatingSearchText = false;
+                FilterGamesList("");
+            }
+
+            var items = (GamesVisibleList.ItemsSource as IEnumerable<GameItem>)?.ToList() ?? _currentViewGames;
+            if (items == null || items.Count == 0) return;
+
+            GameItem? target = null;
+            char targetUpper = char.ToUpperInvariant(letter);
+
+            if (targetUpper == '#')
+            {
+                target = items.FirstOrDefault(g => IsSpecialOrDigit(g.Title));
+            }
+            else
+            {
+                target = items.FirstOrDefault(g => GetNormalizedFirstChar(g.Title) == targetUpper);
+            }
+
+            if (target != null)
+            {
+                GamesVisibleList.SelectedItem = target;
+                GamesVisibleList.ScrollIntoView(target);
+                SelectGame(target);
+                _currentActiveAlphaChar = targetUpper;
+                UpdateAlphaJumpAvailability();
+
+                string msg = IniManager.Language == "EN"
+                    ? $"⚡ Jumped to '{letter}': {target.Title}"
+                    : $"⚡ '{letter}' harfine gidildi: {target.Title}";
+                StatusMessage.Text = msg;
+                StatusMessage.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#38BDF8"));
+            }
+            else
+            {
+                _currentActiveAlphaChar = null;
+                UpdateAlphaJumpAvailability();
+
+                string msg = IniManager.Language == "EN"
+                    ? $"ℹ No games found starting with '{letter}'."
+                    : $"ℹ '{letter}' ile başlayan oyun bulunamadı.";
+                StatusMessage.Text = msg;
+                StatusMessage.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F59E0B"));
+            }
+        }
+
+        private void UpdateAlphaJumpAvailability()
+        {
+            if (_alphaButtons.Count == 0) return;
+
+            var items = (GamesVisibleList.ItemsSource as IEnumerable<GameItem>)?.ToList() ?? _currentViewGames;
+            var presentLetters = new HashSet<char>();
+
+            if (items != null)
+            {
+                foreach (var g in items)
+                {
+                    if (g != null && !string.IsNullOrWhiteSpace(g.Title))
+                    {
+                        presentLetters.Add(GetNormalizedFirstChar(g.Title));
+                    }
+                }
+            }
+
+            var currentTheme = AvailableThemes.FirstOrDefault(t => t.Key.Equals(IniManager.Theme, StringComparison.OrdinalIgnoreCase)) ?? AvailableThemes[0];
+            var accentBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(currentTheme.AccentCol));
+            var textAccentBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(currentTheme.TextAccent));
+
+            foreach (var kvp in _alphaButtons)
+            {
+                char c = kvp.Key;
+                var btn = kvp.Value;
+                bool exists = presentLetters.Contains(c);
+
+                if (c == _currentActiveAlphaChar)
+                {
+                    btn.Background = accentBrush;
+                    btn.Foreground = textAccentBrush;
+                    btn.Opacity = 1.0;
+                }
+                else if (exists)
+                {
+                    btn.Background = Brushes.Transparent;
+                    btn.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#CBD5E1"));
+                    btn.Opacity = 1.0;
+                }
+                else
+                {
+                    btn.Background = Brushes.Transparent;
+                    btn.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#475569"));
+                    btn.Opacity = 0.40;
+                }
+            }
+        }
+
+        private void UpdateActiveAlphaFromGame(GameItem? game)
+        {
+            if (game == null || string.IsNullOrWhiteSpace(game.Title))
+            {
+                _currentActiveAlphaChar = null;
+            }
+            else
+            {
+                _currentActiveAlphaChar = GetNormalizedFirstChar(game.Title);
+            }
+            UpdateAlphaJumpAvailability();
+        }
+
+        private static char GetNormalizedFirstChar(string title)
+        {
+            if (string.IsNullOrWhiteSpace(title)) return '#';
+            string trimmed = title.TrimStart(' ', '"', '\'', '(', '[', '{', '!', '?', '#', '$', '%', '*', '+', '-');
+            if (string.IsNullOrEmpty(trimmed)) return '#';
+            char c = char.ToUpperInvariant(trimmed[0]);
+            if (c == 'İ') return 'I';
+            if (c >= 'A' && c <= 'Z') return c;
+            return '#';
+        }
+
+        private static bool IsSpecialOrDigit(string title)
+        {
+            if (string.IsNullOrWhiteSpace(title)) return true;
+            string trimmed = title.TrimStart(' ', '"', '\'', '(', '[', '{', '!', '?');
+            if (string.IsNullOrEmpty(trimmed)) return true;
+            char c = char.ToUpperInvariant(trimmed[0]);
+            return !(c >= 'A' && c <= 'Z') && c != 'İ';
         }
         #endregion
 
@@ -1261,6 +1475,33 @@ namespace FakelordUI
                     e.Handled = true;
                     return;
                 }
+                if (!string.IsNullOrWhiteSpace(SearchBox.Text))
+                {
+                    SearchBox.Text = "";
+                    e.Handled = true;
+                    return;
+                }
+            }
+
+            // Metin kutusuna odaklı değilse klavyeden harfe veya rakama basıldığında doğrudan zıpla
+            if (SettingsModalOverlay.Visibility != Visibility.Visible &&
+                AboutModalOverlay.Visibility != Visibility.Visible &&
+                !SearchBox.IsKeyboardFocused &&
+                Keyboard.FocusedElement is not System.Windows.Controls.TextBox)
+            {
+                if (e.Key >= Key.A && e.Key <= Key.Z)
+                {
+                    char letter = (char)('A' + (e.Key - Key.A));
+                    JumpToLetter(letter);
+                    e.Handled = true;
+                    return;
+                }
+                else if ((e.Key >= Key.D0 && e.Key <= Key.D9) || (e.Key >= Key.NumPad0 && e.Key <= Key.NumPad9))
+                {
+                    JumpToLetter('#');
+                    e.Handled = true;
+                    return;
+                }
             }
         }
 
@@ -1443,7 +1684,7 @@ namespace FakelordUI
                 menu.Padding = new Forms.Padding(4, 5, 4, 5);
 
                 // 1. Marka & Versiyon Başlığı (Tıklanırsa pencereyi öne getirir)
-                var brandItem = new Forms.ToolStripMenuItem("🎮 FakeLord v1.5");
+                var brandItem = new Forms.ToolStripMenuItem("🎮 FakeLord v1.6");
                 brandItem.Tag = "header_brand";
                 brandItem.Font = new Drawing.Font("Segoe UI", 9.5f, Drawing.FontStyle.Bold);
                 brandItem.Padding = new Forms.Padding(12, 5, 12, 4);
@@ -1735,7 +1976,7 @@ namespace FakelordUI
                 if (string.IsNullOrWhiteSpace(tagName)) return;
 
                 string cleanRemote = tagName.Trim().TrimStart('v', 'V');
-                Version currentVer = new Version(1, 5, 0);
+                Version currentVer = new Version(1, 4, 0);
 
                 if (Version.TryParse(cleanRemote, out var remoteVer) || 
                     Version.TryParse(cleanRemote + ".0", out remoteVer))

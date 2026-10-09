@@ -43,6 +43,10 @@ namespace FakelordUI.Core
                     string templatePath = Path.Combine(DataDirectory, "Runners", "HaYTooL.exe");
                     if (!File.Exists(templatePath))
                     {
+                        templatePath = Path.Combine(DataDirectory, "HaYTooL.exe");
+                    }
+                    if (!File.Exists(templatePath))
+                    {
                         templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Runners", "HaYTooL.exe");
                     }
                     if (!File.Exists(templatePath))

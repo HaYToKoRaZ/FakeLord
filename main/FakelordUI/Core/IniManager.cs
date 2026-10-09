@@ -28,7 +28,7 @@ namespace FakelordUI.Core
         public static bool AutoFetchDiscord { get; set; } = true;
         public static bool StartMinimized { get; set; } = false;
         public static string Language { get; set; } = DetectSystemLanguage(); // TR or EN (Auto detected from OS)
-        public static string Theme { get; set; } = "ObsidianAbyss"; // ObsidianAbyss, DiscordNitro, VaporwaveSunset, AbyssalOcean, RogueCrimson, MatrixEmerald, SolarFlare, AmethystNight
+        public static string Theme { get; set; } = "DiscordNitro"; // Default: DiscordNitro
         public static List<string> Favorites { get; set; } = new() { "win64/cs2.exe", "league of legends.exe", "win64/valorant-win64-shipping.exe" };
 
         // Yeni Eklenen Ayarlar

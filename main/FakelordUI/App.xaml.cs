@@ -22,15 +22,10 @@ namespace FakelordUI
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            this.DispatcherUnhandledException += (s, args) =>
-            {
-                System.Windows.MessageBox.Show(args.Exception.ToString(), "FakeLord Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            };
-
             _instanceMutex = new Mutex(true, MutexName, out bool createdNew);
-
             if (!createdNew)
             {
+                // Zaten çalışan bir kopya var, mevcut pencereyi öne getir ve anında kapan
                 PostMessage(HWND_BROADCAST, WM_SHOWME, IntPtr.Zero, IntPtr.Zero);
                 Environment.Exit(0);
                 return;

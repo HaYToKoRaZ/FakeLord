@@ -19,6 +19,7 @@ websites/
 Backup/
 backup.ps1
 ANAYASA.md
+rules.md
 derle.ps1
 derle-haytool.ps1
 push-main.ps1
