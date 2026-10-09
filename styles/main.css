@@ -6,7 +6,7 @@
 /* Default Theme: Discord Nitro */
 :root {
   --font-main: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
 
   /* Theme: Discord Nitro (Default) */
   --bg-primary: #0e1117;
@@ -431,7 +431,7 @@ body {
   display: grid;
   grid-template-columns: 1.15fr 0.85fr;
   gap: 48px;
-  align-items: center;
+  align-items: start;
 }
 
 .hero-badge-wrap {
@@ -526,6 +526,7 @@ body {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   transition: var(--transition);
+  contain: layout;
 }
 
 .mascot-card:hover {
@@ -538,6 +539,8 @@ body {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 16px;
+  min-height: 28px;
+  line-height: 28px;
 }
 
 .mascot-tag {
@@ -552,6 +555,8 @@ body {
   font-weight: 700;
   color: var(--accent);
   font-family: var(--font-mono);
+  white-space: nowrap;
+  line-height: 1.2;
 }
 
 .mascot-visual-wrap {
@@ -594,6 +599,10 @@ body {
   font-size: 0.9rem;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   transition: var(--transition);
+  min-height: 74px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .mascot-bubble-title {
@@ -611,6 +620,7 @@ body {
 .mascot-actions {
   display: flex;
   gap: 10px;
+  min-height: 42px;
 }
 
 .mascot-btn {
