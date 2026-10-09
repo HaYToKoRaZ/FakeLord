@@ -13,7 +13,6 @@
   </p>
 
   <p align="center">
-    <img src="badgeler/badge_version.svg" alt="Version" />
     <img src="badgeler/badge_latest_downloads.svg" alt="Release" />
     <a href="https://github.com/HaYToKoRaZ/FakeLord/releases"><img src="badgeler/badge_downloads.svg" alt="Total Downloads" /></a>
     <img src="badgeler/badge_platform.svg" alt="Platform" />
