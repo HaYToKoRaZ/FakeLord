@@ -77,6 +77,11 @@ const translations = {
     footerAbout: "Fakelord, Discord ve Steam ekosistemi için tasarlanmış yüksek performanslı, hayalet süreç tabanlı modern oyun simülasyon aracıdır.",
     footerDev: "Geliştirici:",
     footerRights: "Tüm hakları saklıdır. Discord Inc. veya Valve Corp. ile resmi bağı bulunmamaktadır.",
+    error404Title: "Sayfa Hayalet Moduna Geçti!",
+    error404Desc: "Aradığınız sayfa silinmiş, adı değiştirilmiş veya geçici olarak ulaşılamıyor olabilir. FakeLord ile arka planda oyun oynamaya devam edebilirsiniz!",
+    error404Quote: "Miyav? Bu sayfa kaybolmuş gibi görünüyor... Belki de hayalet moduna (Ghost Mode) geçmiştir! 🐾",
+    errorHomeBtn: "🏠 Ana Sayfaya Dön",
+    errorPetBtn: "🐾 Çakıl'ı Sev",
     cakilQuotes: [
       "Miyav! Hoş geldin! Ben Çakıl, FakeLord'un gamer maskotuyum 🐾",
       "Biliyor musun? FakeLord arkada çalışırken sadece 5 MB RAM tüketir, benim kedi mamamdan bile az! 😸",
@@ -157,6 +162,11 @@ const translations = {
     footerAbout: "FakeLord is a high-performance, ghost-process game presence spoofer designed for Discord and Steam users.",
     footerDev: "Developer:",
     footerRights: "All rights reserved. Not affiliated with Discord Inc. or Valve Corp.",
+    error404Title: "Page Entered Ghost Mode!",
+    error404Desc: "The page you are looking for might have been removed, had its name changed, or is temporarily unavailable. Keep playing stealth games with FakeLord!",
+    error404Quote: "Meow? Looks like this page is lost... Maybe it entered Ghost Mode! 🐾",
+    errorHomeBtn: "🏠 Back to Home",
+    errorPetBtn: "🐾 Pet Çakıl",
     cakilQuotes: [
       "Meow! Welcome! I'm Çakıl, FakeLord's gaming mascot 🐾",
       "Did you know? FakeLord uses only 5 MB RAM in the background—less than a bite of cat treats! 😸",

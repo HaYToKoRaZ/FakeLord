@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="discord">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 — Page Not Found | FakeLord</title>
+  
+  <!-- 404 SEO: Prevent search engine indexing of invalid URLs -->
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="404 Page Not Found - The requested page could not be found on FakeLord.">
+  
+  <!-- Favicons -->
+  <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+  <link rel="apple-touch-icon" href="assets/icon.png">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <div class="bg-mesh"></div>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <div class="container nav-inner">
+      <div style="display:flex; align-items:center;">
+        <a href="./" class="nav-brand">
+          <img src="assets/icon.png" alt="FakeLord Logo" class="nav-logo" width="40" height="40">
+          <span>FAKELORD</span>
+        </a>
+        <a href="https://haytokoraz.github.io/" target="_blank" rel="noopener" class="nav-portal-badge" title="HaYTooL Portal">
+          <span>🌐 HaYTooL</span>
+        </a>
+      </div>
+
+      <nav>
+        <ul class="nav-links">
+          <li><a href="./#features" class="nav-link" data-i18n="navFeatures">Özellikler</a></li>
+          <li><a href="./#simulator" class="nav-link" data-i18n="navSimulator">Discord Simülatörü</a></li>
+          <li><a href="./#how" class="nav-link" data-i18n="navHow">Nasıl Çalışır?</a></li>
+          <li><a href="./#faq" class="nav-link" data-i18n="navFaq">S.S.S.</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <!-- Theme Selector (12 Theme Factory Palettes) -->
+        <div class="theme-picker">
+          <button class="theme-btn" id="themeDropdownToggle" title="Tema Seçin (Theme Factory)">
+            <span class="theme-dot"></span>
+            <span data-i18n="navTheme">Tema</span>
+          </button>
+          <div class="theme-dropdown" id="themeDropdown">
+            <button class="theme-opt active" data-theme-val="discord">
+              <span class="theme-opt-color" style="background:#5865F2;"></span> 🎮 Discord Nitro
+            </button>
+            <button class="theme-opt" data-theme-val="galaxy">
+              <span class="theme-opt-color" style="background:#8b5cf6;"></span> 🌌 Midnight Galaxy
+            </button>
+            <button class="theme-opt" data-theme-val="tech">
+              <span class="theme-opt-color" style="background:#06b6d4;"></span> ⚡ Tech Innovation
+            </button>
+            <button class="theme-opt" data-theme-val="ocean">
+              <span class="theme-opt-color" style="background:#0284c7;"></span> 🌊 Ocean Depths
+            </button>
+            <button class="theme-opt" data-theme-val="sunset">
+              <span class="theme-opt-color" style="background:#f43f5e;"></span> 🌆 Sunset Boulevard
+            </button>
+            <button class="theme-opt" data-theme-val="forest">
+              <span class="theme-opt-color" style="background:#10b981;"></span> 🌲 Forest Canopy
+            </button>
+            <button class="theme-opt" data-theme-val="golden">
+              <span class="theme-opt-color" style="background:#f59e0b;"></span> 🌅 Golden Hour
+            </button>
+            <button class="theme-opt" data-theme-val="arctic">
+              <span class="theme-opt-color" style="background:#38bdf8;"></span> ❄️ Arctic Frost
+            </button>
+            <button class="theme-opt" data-theme-val="rose">
+              <span class="theme-opt-color" style="background:#ec4899;"></span> 🏜️ Desert Rose
+            </button>
+            <button class="theme-opt" data-theme-val="botanical">
+              <span class="theme-opt-color" style="background:#84cc16;"></span> 🌿 Botanical Garden
+            </button>
+            <button class="theme-opt" data-theme-val="minimalist">
+              <span class="theme-opt-color" style="background:#9ca3af;"></span> 🖤 Modern Minimalist
+            </button>
+            <button class="theme-opt" data-theme-val="rogue">
+              <span class="theme-opt-color" style="background:#ef4444;"></span> 🎯 Rogue Crimson
+            </button>
+          </div>
+        </div>
+
+        <!-- Language Switcher (TR / EN) -->
+        <div class="lang-switcher">
+          <a href="./?lang=tr" class="lang-btn" data-lang="tr" title="Türkçe">
+            <img src="assets/flag_tr.png" alt="TR"> TR
+          </a>
+          <a href="./?lang=en" class="lang-btn active" data-lang="en" title="English">
+            <img src="assets/flag_gb.png" alt="EN"> EN
+          </a>
+        </div>
+
+        <a href="./#download" class="btn-primary" style="padding: 8px 16px; font-size: 0.85rem;" data-i18n="navDownload">İndir</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="error-page">
+    <div class="container">
+      <div class="error-card">
+        <div class="error-code">404</div>
+
+        <!-- Mascot Çakıl Interactive Focus -->
+        <div class="error-mascot-wrap" title="Çakıl'a tıkla ve sev!">
+          <img src="assets/cakil.jpg" alt="FakeLord Gamer Kedisi Çakıl" id="cakilMascotImg">
+        </div>
+
+        <div class="error-bubble">
+          <p id="cakilBubbleText" data-i18n="error404Quote">Miyav? Bu sayfa kaybolmuş gibi görünüyor... Belki de hayalet moduna (Ghost Mode) geçmiştir! 🐾</p>
+        </div>
+
+        <h1 class="error-title" data-i18n="error404Title">Sayfa Hayalet Moduna Geçti!</h1>
+        <p class="error-desc" data-i18n="error404Desc">
+          Aradığınız sayfa silinmiş, adı değiştirilmiş veya geçici olarak ulaşılamıyor olabilir. FakeLord ile arka planda oyun oynamaya devam edebilirsiniz!
+        </p>
+
+        <div class="error-actions">
+          <a href="./" class="btn-primary" data-i18n="errorHomeBtn">
+            🏠 Ana Sayfaya Dön
+          </a>
+          <button class="btn-secondary" id="cakilPetBtn" data-i18n="errorPetBtn">
+            🐾 Çakıl'ı Sev
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">
+            <img src="assets/icon.png" alt="FakeLord Logo" style="width: 28px; height: 28px; border-radius: 6px;">
+            <span>FAKELORD</span>
+          </div>
+          <p style="max-width: 380px; font-size: 0.88rem; color: var(--text-secondary);" data-i18n="footerAbout">
+            Fakelord, Discord ve Steam ekosistemi için tasarlanmış yüksek performanslı, hayalet süreç tabanlı modern oyun simülasyon aracıdır.
+          </p>
+        </div>
+
+        <div>
+          <h4 style="color: var(--text-primary); margin-bottom: 14px; font-size: 0.95rem;" data-i18n="footerLinksTitle">Bağlantılar</h4>
+          <ul class="footer-links">
+            <li><a href="https://haytokoraz.github.io/" target="_blank" rel="noopener">🌐 HaYTooL Portal</a></li>
+            <li><a href="https://github.com/HaYToKoRaZ/FakeLord" target="_blank" rel="noopener">GitHub Repository</a></li>
+            <li><a href="https://github.com/HaYToKoRaZ/FakeLord/releases" target="_blank" rel="noopener">Releases (İndir)</a></li>
+            <li><a href="https://github.com/HaYToKoRaZ/FakeLord/issues" target="_blank" rel="noopener">Hata Bildirimi (Issues)</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 style="color: var(--text-primary); margin-bottom: 14px; font-size: 0.95rem;" data-i18n="footerContactTitle">İletişim & Geliştirici</h4>
+          <ul class="footer-links">
+            <li><a href="https://github.com/HaYToKoRaZ" target="_blank" rel="noopener">HaYTo (GitHub)</a></li>
+            <li><a href="https://x.com/HaYTo" target="_blank" rel="noopener">X / Twitter (@HaYTo)</a></li>
+            <li><a href="mailto:korazhayto@gmail.com">korazhayto@gmail.com</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>© 2026 FakeLord • Bir <a href="https://haytokoraz.github.io/" target="_blank" rel="noopener" style="color:var(--text-primary); text-decoration:underline;">HaYTooL</a> Projesidir. Geliştirici: <strong>HaYTo</strong>.</div>
+        <div data-i18n="footerRights">Tüm hakları saklıdır. Discord Inc. veya Valve Corp. ile resmi bağı bulunmamaktadır.</div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

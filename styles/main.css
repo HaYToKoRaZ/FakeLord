@@ -1210,3 +1210,95 @@ body {
     font-size: 2rem;
   }
 }
+
+/* ==========================================================================
+   404 ERROR PAGE STYLES
+   ========================================================================== */
+.error-page {
+  min-height: calc(100vh - 72px - 140px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  text-align: center;
+}
+
+.error-card {
+  max-width: 620px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  padding: 48px 36px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  position: relative;
+}
+
+.error-code {
+  font-family: var(--font-mono);
+  font-size: 6rem;
+  font-weight: 900;
+  line-height: 1;
+  background: linear-gradient(135deg, #ffffff 20%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 14px;
+  letter-spacing: -0.05em;
+}
+
+.error-mascot-wrap {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 0 auto 20px;
+  border: 4px solid var(--border-subtle);
+  box-shadow: 0 0 24px var(--accent-glow);
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.error-mascot-wrap:hover {
+  transform: scale(1.08) rotate(3deg);
+  border-color: var(--accent);
+}
+
+.error-mascot-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.error-bubble {
+  background: rgba(14, 17, 23, 0.9);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px 18px;
+  margin-bottom: 24px;
+  font-size: 0.92rem;
+  color: var(--text-primary);
+  display: inline-block;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.error-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.error-desc {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-bottom: 30px;
+  line-height: 1.6;
+}
+
+.error-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
