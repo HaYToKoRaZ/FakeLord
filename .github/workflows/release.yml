@@ -1,0 +1,107 @@
+name: Release CI/CD
+
+on:
+  push:
+    tags:
+      - 'v*' # Sadece v ile başlayan etiketlerde otomatik çalışır (Örn: v1.2, v1.2.0)
+  workflow_dispatch: # GitHub Actions panelinden elle de tetiklenebilir
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Build Windows Release (Portable & Setup)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build Windows Application (Self-Contained Single-File)
+        run: |
+          dotnet publish main\FakelordUI\FakelordUI.csproj `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:EnableCompressionInSingleFile=true `
+            -p:DebugType=None `
+            -p:DebugSymbols=false `
+            -o portable-dist
+          if ($LASTEXITCODE -ne 0) { throw "FakelordUI derlemesi başarısız oldu." }
+          $exe = Join-Path $PWD 'portable-dist\FakelordUI.exe'
+          if (-not (Test-Path $exe)) { throw "Derlenmiş FakelordUI.exe bulunamadı." }
+
+          # Runners/main.exe şablonunun mevcut olduğundan emin ol
+          New-Item -ItemType Directory -Force -Path portable-dist\Runners | Out-Null
+          Copy-Item -Path "main\FakelordUI\RunnersTemplate\main.exe" -Destination "portable-dist\Runners\main.exe" -Force
+
+      - name: Build Windows Portable ZIP
+        run: |
+          $tag = "${{ github.ref_name }}"
+          if ([string]::IsNullOrWhiteSpace($tag)) { $tag = "v1.2.0" }
+          $date = Get-Date -Format "yyyy-MM-dd"
+          $ZipName = "FakeLord-$tag-Win-Portable-$date.zip"
+
+          # Paketlenecek dizin portable-dist klasörüdür
+          & 7z a -tzip $ZipName .\portable-dist\*
+          if ($LASTEXITCODE -ne 0) { throw "Portable ZIP oluşturulamadı." }
+
+      - name: Prepare installer source
+        run: |
+          New-Item -ItemType Directory -Force -Path installer-source | Out-Null
+          Copy-Item -Path "portable-dist\*" -Destination "installer-source\" -Recurse -Force
+
+      - name: Build Windows Setup Installer
+        run: |
+          $tag = "${{ github.ref_name }}"
+          if ([string]::IsNullOrWhiteSpace($tag)) { $tag = "v1.2.0" }
+          $version = $tag.TrimStart('v')
+          $iscc = Get-Command ISCC.exe -ErrorAction SilentlyContinue
+          $isccPath = if ($iscc) { $iscc.Source } else { Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe' }
+          if (-not (Test-Path $isccPath)) {
+            choco install innosetup --yes --no-progress
+            $isccPath = Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe'
+          }
+          if (-not (Test-Path $isccPath)) { throw "Inno Setup derleyicisi bulunamadı." }
+          New-Item -ItemType Directory -Force -Path release | Out-Null
+          & $isccPath "/DAppVersion=$version" "main\installer.iss"
+          if ($LASTEXITCODE -ne 0) { throw "Windows setup oluşturulamadı." }
+
+      - name: Name Windows Setup Installer
+        run: |
+          $tag = "${{ github.ref_name }}"
+          if ([string]::IsNullOrWhiteSpace($tag)) { $tag = "v1.2.0" }
+          $date = Get-Date -Format "yyyy-MM-dd"
+          $setupExe = Get-ChildItem -Path release -File -Filter "FakeLord-Windows-Setup-v*.exe" | Select-Object -First 1
+          if (-not $setupExe) { throw "Windows Setup EXE bulunamadı." }
+          $setupName = "FakeLord-$tag-Win-Setup-$date.exe"
+          Move-Item -LiteralPath $setupExe.FullName -Destination (Join-Path $setupExe.DirectoryName $setupName)
+
+      - name: Extract Release Notes
+        run: |
+          if (Test-Path CHANGELOG.md) {
+              $changelog = Get-Content CHANGELOG.md -Raw
+              if ($changelog -match '(?s)## \[[^\]]+\] - \d{4}-\d{2}-\d{2}\s*(.*?)(?=## \[[^\]]+\] - \d{4}-\d{2}-\d{2}|$)') {
+                  $notes = $matches[1].Trim()
+                  Set-Content -Path release_notes.txt -Value $notes -Encoding UTF8
+              } else {
+                  Set-Content -Path release_notes.txt -Value "FakeLord ${{ github.ref_name }} sürümü yayınlandı." -Encoding UTF8
+              }
+          } else {
+              Set-Content -Path release_notes.txt -Value "FakeLord ${{ github.ref_name }} sürümü yayınlandı." -Encoding UTF8
+          }
+
+      - name: Upload Windows Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            FakeLord-*-Win-Portable-*.zip
+            release/FakeLord-*-Win-Setup-*.exe
+          body_path: release_notes.txt
