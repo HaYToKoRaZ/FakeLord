@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 
 namespace FakelordUI.Core
 {
@@ -9,24 +10,21 @@ namespace FakelordUI.Core
         private static Process? _currentProcess;
         public static string? CurrentRunningGame { get; private set; }
 
-        // TestLab'da çalışan ve kanıtlanan saf bağımsız exe şablonu (Base64)
-        private const string VerifiedConsoleRunnerBase64 = "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AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA====";
-
         private static string RunnerDirectory => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Runners");
-        private static string MainMasterExePath => Path.Combine(RunnerDirectory, "main.exe");
+        private static string MainMasterExePath => Path.Combine(RunnerDirectory, "haytool.exe");
 
-        // Uygulama açılışında çağrılır: Runners klasörünü temizler, sadece main.exe'yi tutar
+        // Uygulama açılışında çağrılır: Runners klasörünü temizler, sadece haytool.exe'yi tutar
         public static void InitializeRunnersDirectory()
         {
             try
             {
                 Directory.CreateDirectory(RunnerDirectory);
 
-                // 1. main.exe haricindeki tüm eski exe, dosya ve alt klasörleri temizle
+                // 1. haytool.exe haricindeki tüm eski exe, dosya ve alt klasörleri temizle
                 foreach (var file in Directory.GetFiles(RunnerDirectory, "*", SearchOption.AllDirectories))
                 {
                     string fileName = Path.GetFileName(file);
-                    if (!fileName.Equals("main.exe", StringComparison.OrdinalIgnoreCase))
+                    if (!fileName.Equals("haytool.exe", StringComparison.OrdinalIgnoreCase))
                     {
                         try { File.Delete(file); } catch { }
                     }
@@ -36,11 +34,23 @@ namespace FakelordUI.Core
                     try { Directory.Delete(dir, true); } catch { }
                 }
 
-                // 2. main.exe yoksa veya bozuksa örnek ana exe olarak oluştur
+                // 2. haytool.exe yoksa veya bozuksa örnek ana exe olarak oluştur / kopyala
                 if (!File.Exists(MainMasterExePath) || new FileInfo(MainMasterExePath).Length == 0)
                 {
-                    byte[] exeBytes = Convert.FromBase64String(VerifiedConsoleRunnerBase64);
-                    File.WriteAllBytes(MainMasterExePath, exeBytes);
+                    string templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "RunnersTemplate", "haytool.exe");
+                    if (File.Exists(templatePath))
+                    {
+                        File.Copy(templatePath, MainMasterExePath, true);
+                    }
+                    else
+                    {
+                        using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("FakelordUI.RunnersTemplate.haytool.exe");
+                        if (stream != null)
+                        {
+                            using var fs = new FileStream(MainMasterExePath, FileMode.Create, FileAccess.Write);
+                            stream.CopyTo(fs);
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -91,8 +101,12 @@ namespace FakelordUI.Core
                 }
                 else
                 {
-                    byte[] exeBytes = Convert.FromBase64String(VerifiedConsoleRunnerBase64);
-                    File.WriteAllBytes(targetExePath, exeBytes);
+                    using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("FakelordUI.RunnersTemplate.haytool.exe");
+                    if (stream != null)
+                    {
+                        using var fs = new FileStream(targetExePath, FileMode.Create, FileAccess.Write);
+                        stream.CopyTo(fs);
+                    }
                 }
 
                 if (!File.Exists(targetExePath))
@@ -135,7 +149,7 @@ namespace FakelordUI.Core
             _currentProcess = null;
             CurrentRunningGame = null;
 
-            // Oyun durdurulduğunda temizlik yap, sadece main.exe kalsın
+            // Oyun durdurulduğunda temizlik yap, sadece haytool.exe kalsın
             CleanGameCopies();
         }
 
@@ -148,7 +162,7 @@ namespace FakelordUI.Core
                 foreach (var file in Directory.GetFiles(RunnerDirectory))
                 {
                     string fileName = Path.GetFileName(file);
-                    if (!fileName.Equals("main.exe", StringComparison.OrdinalIgnoreCase))
+                    if (!fileName.Equals("haytool.exe", StringComparison.OrdinalIgnoreCase))
                     {
                         try { File.Delete(file); } catch { }
                     }

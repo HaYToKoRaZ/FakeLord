@@ -38,9 +38,9 @@ jobs:
           $exe = Join-Path $PWD 'portable-dist\FakelordUI.exe'
           if (-not (Test-Path $exe)) { throw "Derlenmiş FakelordUI.exe bulunamadı." }
 
-          # Runners/main.exe şablonunun mevcut olduğundan emin ol
+          # Runners/haytool.exe şablonunun mevcut olduğundan emin ol
           New-Item -ItemType Directory -Force -Path portable-dist\Runners | Out-Null
-          Copy-Item -Path "main\FakelordUI\RunnersTemplate\main.exe" -Destination "portable-dist\Runners\main.exe" -Force
+          Copy-Item -Path "main\FakelordUI\RunnersTemplate\haytool.exe" -Destination "portable-dist\Runners\haytool.exe" -Force
 
       - name: Build Windows Portable ZIP
         run: |

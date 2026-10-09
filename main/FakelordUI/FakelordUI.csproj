@@ -20,9 +20,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="RunnersTemplate\main.exe">
+    <None Include="RunnersTemplate\haytool.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <Link>Runners\main.exe</Link>
+      <Link>Runners\haytool.exe</Link>
     </None>
+    <EmbeddedResource Include="RunnersTemplate\haytool.exe" />
   </ItemGroup>
 </Project>
