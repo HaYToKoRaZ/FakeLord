@@ -22,6 +22,20 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
+      - name: Build HaYTooL Master Runner (Self-Contained Single-File)
+        run: |
+          dotnet publish main\HaYTooL\HaYTooL.csproj `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:EnableCompressionInSingleFile=true `
+            -p:DebugType=None `
+            -p:DebugSymbols=false `
+            -o main\FakelordUI\RunnersTemplate
+          if ($LASTEXITCODE -ne 0) { throw "HaYTooL derlemesi başarısız oldu." }
+
       - name: Build Windows Application (Self-Contained Single-File)
         run: |
           dotnet publish main\FakelordUI\FakelordUI.csproj `
@@ -38,9 +52,9 @@ jobs:
           $exe = Join-Path $PWD 'portable-dist\FakelordUI.exe'
           if (-not (Test-Path $exe)) { throw "Derlenmiş FakelordUI.exe bulunamadı." }
 
-          # Runners/haytool.exe şablonunun mevcut olduğundan emin ol
+          # Runners/HaYTooL.exe şablonunun mevcut olduğundan emin ol
           New-Item -ItemType Directory -Force -Path portable-dist\Runners | Out-Null
-          Copy-Item -Path "main\FakelordUI\RunnersTemplate\haytool.exe" -Destination "portable-dist\Runners\haytool.exe" -Force
+          Copy-Item -Path "main\FakelordUI\RunnersTemplate\HaYTooL.exe" -Destination "portable-dist\Runners\HaYTooL.exe" -Force
 
       - name: Build Windows Portable ZIP
         run: |

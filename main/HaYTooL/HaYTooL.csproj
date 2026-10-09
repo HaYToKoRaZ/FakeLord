@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <AssemblyName>HaYTooL</AssemblyName>
+    
+    <!-- Yayıncı / Şirket / Telif bilgileri boş bırakıldı -->
+    <Company></Company>
+    <Product>HaYTooL</Product>
+    <Copyright></Copyright>
+    <Description></Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="app.ico" />
+  </ItemGroup>
+
+</Project>
