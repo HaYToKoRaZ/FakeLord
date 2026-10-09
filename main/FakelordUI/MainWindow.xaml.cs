@@ -1684,7 +1684,7 @@ namespace FakelordUI
                 menu.Padding = new Forms.Padding(4, 5, 4, 5);
 
                 // 1. Marka & Versiyon Başlığı (Tıklanırsa pencereyi öne getirir)
-                var brandItem = new Forms.ToolStripMenuItem("🎮 FakeLord v1.6");
+                var brandItem = new Forms.ToolStripMenuItem("🎮 FakeLord v1.7");
                 brandItem.Tag = "header_brand";
                 brandItem.Font = new Drawing.Font("Segoe UI", 9.5f, Drawing.FontStyle.Bold);
                 brandItem.Padding = new Forms.Padding(12, 5, 12, 4);
@@ -1891,8 +1891,10 @@ namespace FakelordUI
         }
         #endregion
 
-        private void WebBadge_MouseDown(object sender, MouseButtonEventArgs e) => OpenUrl("https://haytool.online/FakeLord/");
-        private void LinkWebsite_Click(object sender, RoutedEventArgs e) => OpenUrl("https://haytool.online/FakeLord/");
+        private void WebBadge_MouseDown(object sender, MouseButtonEventArgs e) => OpenUrl("https://haytokoraz.github.io/FakeLord/");
+        private void PortalBadge_MouseDown(object sender, MouseButtonEventArgs e) => OpenUrl("https://haytokoraz.github.io/");
+        private void LinkWebsite_Click(object sender, RoutedEventArgs e) => OpenUrl("https://haytokoraz.github.io/FakeLord/");
+        private void LinkPortal_Click(object sender, RoutedEventArgs e) => OpenUrl("https://haytokoraz.github.io/");
         private void LinkGithub_Click(object sender, RoutedEventArgs e) => OpenUrl("https://github.com/HaYToKoRaZ/FakeLord");
         private void LinkIssues_Click(object sender, RoutedEventArgs e) => OpenUrl("https://github.com/HaYToKoRaZ/FakeLord/issues");
         private void LinkEmail_Click(object sender, RoutedEventArgs e) => OpenUrl("mailto:korazhayto@gmail.com");

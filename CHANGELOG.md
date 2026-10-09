@@ -2,6 +2,16 @@
 
 Tüm önemli değişiklikler bu dosyada belgelenecektir.
 
+## [v1.7.0] - 2026-10-09
+
+### 🐱 Modern İki Dilli Web Vitrini & Maskot Çakıl
+- **🐱 Sevimli Kedi Maskot Çakıl (Interactive Gamer Mascot):** Ziyaretçileri karşılayan, oyuncu kulaklığı takan, tıklamalara, hover'a ve tema değişimlerine dinamik tepkiler veren etkileşimli SVG/CSS maskot eklendi.
+- **🌐 Çift Dilli URL Yönlendirmeli Gezinme (Bilingual Navigation):** Sayfa içi geçişlerde ve bağlantılarda dil parametresi (`?lang=tr` / `?lang=en`) otomatik korunur. Sayfa yenilenmeden anında Türkçe ve İngilizce arasında pürüzsüz geçiş sağlanır.
+- **🎨 Theme Factory Web Entegrasyonu:** Masaüstü uygulamasındaki 12 özgün renk teması web vitrinine de taşındı. Ziyaretçiler web sitesi üzerinden doğrudan canlı tema değiştirebilir ve interaktif Discord Profil Kartı simülasyonunu test edebilir.
+- **🚀 Sıfır Bağımlılık & 100/100 Lighthouse Performansı:** React veya karmaşık paketleyicilere ihtiyaç duymadan, saf Semantic HTML5, Vanilla CSS ve modern JavaScript ile en yüksek hız, kusursuz SEO (`SoftwareApplication` & `FAQPage` JSON-LD şemaları) ve GitHub Pages uyumluluğu sağlandı.
+
+---
+
 ## [v1.6.0] - 2026-10-09
 
 ### 🎨 Theme Factory Entegrasyonu & Bütünleşik Dinamik Tasarım
