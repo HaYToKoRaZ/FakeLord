@@ -267,7 +267,7 @@ function applyTranslations() {
 }
 
 // --- 5. THEME SWITCHING (12 THEMES) ---
-function setTheme(theme) {
+function setTheme(theme, isUserAction = false) {
   currentTheme = theme;
   document.documentElement.setAttribute("data-theme", theme);
   localStorage.setItem("fakelord_theme", theme);
@@ -279,13 +279,15 @@ function setTheme(theme) {
   // Update active dot in theme button
   const activeOpt = document.querySelector(`.theme-opt[data-theme-val="${theme}"]`);
   if (activeOpt) {
-    const color = activeOpt.querySelector(".theme-opt-color").style.backgroundColor;
+    const color = activeOpt.querySelector(".theme-opt-color")?.style.background;
     const dot = document.querySelector(".theme-btn .theme-dot");
-    if (dot) dot.style.backgroundColor = color;
+    if (dot && color) dot.style.background = color;
   }
 
-  // Çakıl Reacts!
-  triggerCakilThemeReaction();
+  // Only react to explicit user clicks, avoid reflow on silent init
+  if (isUserAction) {
+    triggerCakilThemeReaction();
+  }
 }
 
 // --- 6. MASCOT "ÇAKIL" INTERACTIONS ---
@@ -309,11 +311,11 @@ function petCakil() {
   const selected = petQuotes[Math.floor(Math.random() * petQuotes.length)];
   updateMascotBubble(selected);
 
-  // Wiggle mascot visual
+  // GPU compositor accelerated animation (Zero layout reflow)
   const wrap = document.querySelector(".mascot-visual-wrap");
   if (wrap) {
-    wrap.style.transform = "scale(1.05) rotate(2deg)";
-    setTimeout(() => { wrap.style.transform = "none"; }, 300);
+    wrap.classList.add("pet-anim");
+    setTimeout(() => { wrap.classList.remove("pet-anim"); }, 300);
   }
 }
 
@@ -410,7 +412,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 2. Theme Init
   const savedTheme = localStorage.getItem("fakelord_theme") || "discord";
-  setTheme(savedTheme);
+  setTheme(savedTheme, false);
 
   const themeToggle = document.getElementById("themeDropdownToggle");
   const themeDropdown = document.getElementById("themeDropdown");
@@ -426,7 +428,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.querySelectorAll(".theme-opt").forEach(opt => {
     opt.addEventListener("click", () => {
-      setTheme(opt.dataset.themeVal);
+      setTheme(opt.dataset.themeVal, true);
       if (themeDropdown) themeDropdown.classList.remove("open");
     });
   });

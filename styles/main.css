@@ -576,6 +576,10 @@ body {
   transform: scale(1.04);
 }
 
+.mascot-visual-wrap.pet-anim {
+  transform: scale(1.05) rotate(2deg);
+}
+
 .mascot-bubble {
   position: absolute;
   bottom: 16px;
