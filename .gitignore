@@ -24,8 +24,7 @@ derle-haytool.ps1
 push-main.ps1
 push-websites.ps1
 /icon.png
-/ingilizce-ekran-goruntusu.png
-*ekrangoruntu*
+ekrangoruntulerı/
 
 # Önbellek ve İndirilen Görseller
 **/Cache/
