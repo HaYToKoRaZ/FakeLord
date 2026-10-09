@@ -51,7 +51,7 @@ Using an ultra-lightweight **Ghost Process Architecture**, FakeLord simulates of
 ## 📸 Screenshots (English UI)
 
 <div align="center">
-  <img src="ekrangoruntuleri/ingilizce-ekran-goruntusu.png" alt="FakeLord English UI Screenshot" width="850" style="border-radius: 12px; border: 1px solid #232D42; box-shadow: 0 10px 30px rgba(0,0,0,0.6);" />
+  <img src="ekrangoruntuleri/ingilizce-ekran-goruntusu.png" alt="FakeLord English UI Screenshot" width="425" style="border-radius: 12px; border: 1px solid #232D42; box-shadow: 0 10px 30px rgba(0,0,0,0.6);" />
   <p><em>FakeLord English Interface — Modern Discord & Steam integration with real-time profile preview.</em></p>
 </div>
 
@@ -105,7 +105,7 @@ Gelişmiş **Hayalet Süreç (Ghost Process)** mimarisi sayesinde, sistemde **%0
 ## 📸 Ekran Görüntüleri (Türkçe Arayüz)
 
 <div align="center">
-  <img src="ekrangoruntuleri/turkce-ekran-goruntusu.png" alt="FakeLord Türkçe Arayüz Ekran Görüntüsü" width="850" style="border-radius: 12px; border: 1px solid #232D42; box-shadow: 0 10px 30px rgba(0,0,0,0.6);" />
+  <img src="ekrangoruntuleri/turkce-ekran-goruntusu.png" alt="FakeLord Türkçe Arayüz Ekran Görüntüsü" width="425" style="border-radius: 12px; border: 1px solid #232D42; box-shadow: 0 10px 30px rgba(0,0,0,0.6);" />
   <p><em>FakeLord Türkçe Arayüzü — Canlı Discord kart önizlemesi, dinamik favoriler ve hızlı filtreler.</em></p>
 </div>
 
@@ -160,7 +160,8 @@ Gelişmiş **Hayalet Süreç (Ghost Process)** mimarisi sayesinde, sistemde **%0
 ## 👤 Geliştirici & Topluluk
 
 - **Geliştirici:** HaYTo
-- **Resmi Web Sitesi:** [haytool.online/FakeLord](https://haytool.online/FakeLord/)
+- **Resmi Web Sitesi:** [haytokoraz.github.io/FakeLord](https://haytokoraz.github.io/FakeLord/)
+- **HaYTooL Portal:** [haytokoraz.github.io](https://haytokoraz.github.io/)
 - **X (Twitter):** [@HaYTo](https://x.com/HaYTo)
 - **Hata Bildirimi & Öneri:** [GitHub Issues](https://github.com/HaYToKoRaZ/FakeLord/issues)
 - **E-posta:** `korazhayto@gmail.com`
