@@ -14,6 +14,15 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using FakelordUI.Core;
 using FakelordUI.Presets;
+using Forms = System.Windows.Forms;
+using Drawing = System.Drawing;
+using Color = System.Windows.Media.Color;
+using ColorConverter = System.Windows.Media.ColorConverter;
+using Brushes = System.Windows.Media.Brushes;
+using Application = System.Windows.Application;
+using Button = System.Windows.Controls.Button;
+using Cursors = System.Windows.Input.Cursors;
+using HorizontalAlignment = System.Windows.HorizontalAlignment;
 
 namespace FakelordUI
 {
@@ -26,6 +35,10 @@ namespace FakelordUI
         private string _activeTab = "Popular"; // Popular, All, SteamTop, SteamInstalled
         private bool _isUpdatingSearchText = false;
         private bool _isPopulatingThemes = false;
+        private bool _isPopulatingSettingsThemes = false;
+        private Forms.NotifyIcon? _notifyIcon;
+        private bool _isExplicitExit = false;
+        private bool _trayBalloonShownOnce = false;
 
         private record ThemeInfo(
             string Key,
@@ -61,12 +74,98 @@ namespace FakelordUI
             ApplyTheme(IniManager.Theme);
             ApplyLanguage(IniManager.Language);
 
+            RestoreWindowGeometry();
+            SetupSystemTray();
+
             PreviewKeyDown += MainWindow_PreviewKeyDown;
+            Closing += MainWindow_Closing;
+            LocationChanged += MainWindow_LocationChanged;
+            SizeChanged += MainWindow_SizeChanged;
 
             LoadInitialGames();
             RenderFavoritesBar();
 
             _ = CheckForGitHubUpdatesAsync();
+
+            if (IniManager.StartMinimized)
+            {
+                Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(() =>
+                {
+                    if (IniManager.EnableSystemTray && _notifyIcon != null)
+                    {
+                        Hide();
+                    }
+                    else
+                    {
+                        WindowState = WindowState.Minimized;
+                    }
+                }));
+            }
+        }
+
+        private void RestoreWindowGeometry()
+        {
+            if (IniManager.WindowWidth >= 500) Width = IniManager.WindowWidth;
+            if (IniManager.WindowHeight >= 450) Height = IniManager.WindowHeight;
+
+            if (IniManager.WindowLeft >= 0 && IniManager.WindowTop >= 0)
+            {
+                // Ekran sınırları içinde mi kontrol et
+                double virtualLeft = SystemParameters.VirtualScreenLeft;
+                double virtualTop = SystemParameters.VirtualScreenTop;
+                double virtualWidth = SystemParameters.VirtualScreenWidth;
+                double virtualHeight = SystemParameters.VirtualScreenHeight;
+
+                if (IniManager.WindowLeft >= virtualLeft &&
+                    IniManager.WindowLeft + 200 <= virtualLeft + virtualWidth &&
+                    IniManager.WindowTop >= virtualTop &&
+                    IniManager.WindowTop + 150 <= virtualTop + virtualHeight)
+                {
+                    WindowStartupLocation = WindowStartupLocation.Manual;
+                    Left = IniManager.WindowLeft;
+                    Top = IniManager.WindowTop;
+                }
+            }
+        }
+
+        private void MainWindow_LocationChanged(object? sender, EventArgs e)
+        {
+            if (WindowState == WindowState.Normal)
+            {
+                IniManager.WindowLeft = Left;
+                IniManager.WindowTop = Top;
+            }
+        }
+
+        private void MainWindow_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (WindowState == WindowState.Normal)
+            {
+                IniManager.WindowWidth = ActualWidth;
+                IniManager.WindowHeight = ActualHeight;
+            }
+        }
+
+        private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
+        {
+            IniManager.Save();
+
+            if (IniManager.EnableSystemTray && IniManager.MinimizeToTray && !_isExplicitExit)
+            {
+                e.Cancel = true;
+                Hide();
+                if (_notifyIcon != null && !_trayBalloonShownOnce)
+                {
+                    _trayBalloonShownOnce = true;
+                    _notifyIcon.ShowBalloonTip(1500, "FakeLord", 
+                        IniManager.Language == "EN" ? "FakeLord is running in the system tray." : "FakeLord sistem tepsisinde arka planda çalışmaya devam ediyor.", 
+                        Forms.ToolTipIcon.Info);
+                }
+            }
+            else
+            {
+                DisposeSystemTray();
+            }
         }
 
         private void LoadInitialGames()
@@ -546,6 +645,8 @@ namespace FakelordUI
             UpdateFavoriteToggleButton();
             UpdateGameCountBadge();
             PopulateThemeComboBox();
+            PopulateSettingsThemeComboBox();
+            UpdateSettingsTexts();
         }
 
         private void BtnLangTR_Click(object sender, RoutedEventArgs e) => ApplyLanguage("TR");
@@ -584,6 +685,83 @@ namespace FakelordUI
             finally
             {
                 _isPopulatingThemes = false;
+            }
+        }
+
+        private void PopulateSettingsThemeComboBox()
+        {
+            _isPopulatingSettingsThemes = true;
+            try
+            {
+                ComboSettingsTheme.Items.Clear();
+                bool isEn = IniManager.Language == "EN";
+
+                int selectIdx = 0;
+                for (int i = 0; i < AvailableThemes.Count; i++)
+                {
+                    var th = AvailableThemes[i];
+                    var item = new ComboBoxItem
+                    {
+                        Content = isEn ? th.EnName : th.TrName,
+                        Tag = th.Key,
+                        Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F0F6FC")),
+                        Template = (ControlTemplate)Resources["ThemeComboItemTemplate"]
+                    };
+
+                    ComboSettingsTheme.Items.Add(item);
+
+                    if (th.Key.Equals(IniManager.Theme, StringComparison.OrdinalIgnoreCase))
+                    {
+                        selectIdx = i;
+                    }
+                }
+
+                ComboSettingsTheme.SelectedIndex = selectIdx;
+            }
+            finally
+            {
+                _isPopulatingSettingsThemes = false;
+            }
+        }
+
+        private void SyncSettingsThemeSelection(string themeKey)
+        {
+            if (ComboSettingsTheme == null) return;
+            _isPopulatingSettingsThemes = true;
+            try
+            {
+                for (int i = 0; i < ComboSettingsTheme.Items.Count; i++)
+                {
+                    if (ComboSettingsTheme.Items[i] is ComboBoxItem item && item.Tag is string key && key.Equals(themeKey, StringComparison.OrdinalIgnoreCase))
+                    {
+                        ComboSettingsTheme.SelectedIndex = i;
+                        break;
+                    }
+                }
+            }
+            finally
+            {
+                _isPopulatingSettingsThemes = false;
+            }
+        }
+
+        private void ComboSettingsTheme_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_isPopulatingSettingsThemes) return;
+            if (ComboSettingsTheme.SelectedItem is ComboBoxItem item && item.Tag is string key)
+            {
+                _isPopulatingThemes = true;
+                for (int i = 0; i < ComboTheme.Items.Count; i++)
+                {
+                    if (ComboTheme.Items[i] is ComboBoxItem ci && ci.Tag is string tk && tk.Equals(key, StringComparison.OrdinalIgnoreCase))
+                    {
+                        ComboTheme.SelectedIndex = i;
+                        break;
+                    }
+                }
+                _isPopulatingThemes = false;
+
+                ApplyTheme(key);
             }
         }
 
@@ -635,10 +813,14 @@ namespace FakelordUI
             AboutCardBorder.Background = new SolidColorBrush(cardBg);
             AboutCardBorder.BorderBrush = new SolidColorBrush(borderCol);
 
+            SettingsCardBorder.Background = new SolidColorBrush(cardBg);
+            SettingsCardBorder.BorderBrush = new SolidColorBrush(borderCol);
+
             FooterBorder.Background = new SolidColorBrush(winBg);
             FooterBorder.BorderBrush = new SolidColorBrush(borderCol);
 
             UpdateTabButtonsUI();
+            SyncSettingsThemeSelection(theme.Key);
         }
         #endregion
 
@@ -651,7 +833,7 @@ namespace FakelordUI
             FilterGamesList(query);
         }
 
-        private void SearchBox_PreviewKeyDown(object sender, KeyEventArgs e)
+        private void SearchBox_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
             if (e.Key == Key.Down && GamesVisibleList.Items.Count > 0)
             {
@@ -747,7 +929,8 @@ namespace FakelordUI
             {
                 _isPlaying = true;
                 IniManager.LastGame = _selectedGame.ExeName;
-                IniManager.Save();
+                IniManager.AddRecentGame(_selectedGame.ExeName);
+                UpdateTrayContextMenu();
 
                 BtnStart.IsEnabled = false;
                 BtnStop.IsEnabled = true;
@@ -802,14 +985,278 @@ namespace FakelordUI
             e.Handled = true;
         }
 
-        private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
+        private void MainWindow_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            if (e.Key == Key.Escape && AboutModalOverlay.Visibility == Visibility.Visible)
+            if (e.Key == Key.Escape)
             {
-                AboutModalOverlay.Visibility = Visibility.Collapsed;
-                e.Handled = true;
+                if (SettingsModalOverlay.Visibility == Visibility.Visible)
+                {
+                    SettingsModalOverlay.Visibility = Visibility.Collapsed;
+                    e.Handled = true;
+                    return;
+                }
+                if (AboutModalOverlay.Visibility == Visibility.Visible)
+                {
+                    AboutModalOverlay.Visibility = Visibility.Collapsed;
+                    e.Handled = true;
+                    return;
+                }
             }
         }
+
+        #region Ayarlar (Settings) Modalı Olayları
+        private void BtnSettings_Click(object sender, RoutedEventArgs e)
+        {
+            ChkEnableTray.IsChecked = IniManager.EnableSystemTray;
+            ChkMinimizeToTray.IsChecked = IniManager.MinimizeToTray;
+            ChkStartWithWindows.IsChecked = StartupManager.IsStartupEnabled();
+            ChkStartMinimized.IsChecked = IniManager.StartMinimized;
+            SyncSettingsThemeSelection(IniManager.Theme);
+
+            SettingsModalOverlay.Visibility = Visibility.Visible;
+        }
+
+        private void BtnCloseSettings_Click(object sender, RoutedEventArgs e)
+        {
+            SettingsModalOverlay.Visibility = Visibility.Collapsed;
+        }
+
+        private void SettingsModalOverlay_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.OriginalSource == SettingsModalOverlay)
+            {
+                SettingsModalOverlay.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void SettingsCard_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            e.Handled = true;
+        }
+
+        private void BtnSaveSettings_Click(object sender, RoutedEventArgs e)
+        {
+            bool trayEnabled = ChkEnableTray.IsChecked == true;
+            bool minToTray = ChkMinimizeToTray.IsChecked == true;
+            bool startWithWin = ChkStartWithWindows.IsChecked == true;
+            bool startMin = ChkStartMinimized.IsChecked == true;
+
+            IniManager.EnableSystemTray = trayEnabled;
+            IniManager.MinimizeToTray = minToTray;
+            IniManager.StartWithWindows = startWithWin;
+            IniManager.StartMinimized = startMin;
+
+            StartupManager.SetStartup(startWithWin);
+
+            IniManager.Save();
+
+            if (trayEnabled)
+            {
+                if (_notifyIcon == null)
+                {
+                    SetupSystemTray();
+                }
+                else
+                {
+                    _notifyIcon.Visible = true;
+                    UpdateTrayContextMenu();
+                }
+            }
+            else
+            {
+                if (_notifyIcon != null)
+                {
+                    _notifyIcon.Visible = false;
+                }
+            }
+
+            SettingsModalOverlay.Visibility = Visibility.Collapsed;
+            ShowToast(LocalizationManager.Get("SettingsSavedToast"), "⚙️");
+        }
+
+        private void UpdateSettingsTexts()
+        {
+            TxtSettingsHeaderTitle.Text = LocalizationManager.Get("SettingsTitle");
+            TxtSettingsHeaderDesc.Text = LocalizationManager.Get("SettingsGeneral");
+            TxtSettingsThemeTitle.Text = LocalizationManager.Get("SettingsAppearance");
+            TxtSettingsThemeDesc.Text = LocalizationManager.Get("Theme_" + IniManager.Theme);
+
+            TxtSettingsTrayTitle.Text = LocalizationManager.Get("SettingsEnableTray");
+            TxtSettingsTrayDesc.Text = LocalizationManager.Get("SettingsEnableTrayDesc");
+
+            TxtSettingsMinToTrayTitle.Text = LocalizationManager.Get("SettingsMinimizeToTray");
+            TxtSettingsMinToTrayDesc.Text = LocalizationManager.Get("SettingsMinimizeToTrayDesc");
+
+            TxtSettingsStartupTitle.Text = LocalizationManager.Get("SettingsStartWithWindows");
+            TxtSettingsStartupDesc.Text = LocalizationManager.Get("SettingsStartWithWindowsDesc");
+
+            TxtSettingsStartMinTitle.Text = LocalizationManager.Get("SettingsStartMinimized");
+            TxtSettingsStartMinDesc.Text = LocalizationManager.Get("SettingsStartMinimizedDesc");
+
+            BtnSettingsCancel.Content = LocalizationManager.Get("AboutClose");
+            BtnSettingsSave.Content = LocalizationManager.Get("SettingsSave");
+
+            UpdateTrayContextMenu();
+        }
+        #endregion
+
+        #region Sistem Tepsisi (System Tray) Yönetimi
+        private void SetupSystemTray()
+        {
+            if (!IniManager.EnableSystemTray) return;
+
+            try
+            {
+                if (_notifyIcon != null)
+                {
+                    _notifyIcon.Visible = true;
+                    UpdateTrayContextMenu();
+                    return;
+                }
+
+                _notifyIcon = new Forms.NotifyIcon();
+                _notifyIcon.Text = "FakeLord - Discord Game Simulator";
+
+                // İkon yükleme: Önce dosya sistemi app.ico, yoksa WPF pencere ikonu
+                string icoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.ico");
+                if (File.Exists(icoPath))
+                {
+                    _notifyIcon.Icon = new Drawing.Icon(icoPath);
+                }
+                else
+                {
+                    _notifyIcon.Icon = Drawing.SystemIcons.Application;
+                }
+
+                _notifyIcon.DoubleClick += (s, e) =>
+                {
+                    BringWindowToFront();
+                };
+
+                UpdateTrayContextMenu();
+                _notifyIcon.Visible = true;
+            }
+            catch { }
+        }
+
+        private void UpdateTrayContextMenu()
+        {
+            if (_notifyIcon == null) return;
+
+            try
+            {
+                var menu = new Forms.ContextMenuStrip();
+
+                // 1. Göster / Aç
+                var showItem = new Forms.ToolStripMenuItem(LocalizationManager.Get("TrayShow"));
+                showItem.Font = new Drawing.Font(showItem.Font, Drawing.FontStyle.Bold);
+                showItem.Click += (s, e) => BringWindowToFront();
+                menu.Items.Add(showItem);
+
+                menu.Items.Add(new Forms.ToolStripSeparator());
+
+                // 2. Son Oynanan Oyunlar (Son 3 oyun)
+                var headerItem = new Forms.ToolStripMenuItem(LocalizationManager.Get("TrayRecentGames")) { Enabled = false };
+                menu.Items.Add(headerItem);
+
+                var top3Recent = IniManager.RecentGames.Take(3).ToList();
+                if (top3Recent.Count == 0 && !string.IsNullOrWhiteSpace(IniManager.LastGame))
+                {
+                    top3Recent.Add(IniManager.LastGame);
+                }
+
+                if (top3Recent.Count > 0)
+                {
+                    foreach (var exe in top3Recent)
+                    {
+                        var matchingGame = _allGames.FirstOrDefault(g => g.ExeName.Equals(exe, StringComparison.OrdinalIgnoreCase));
+                        string gameTitle = matchingGame?.Title ?? exe.Replace(".exe", "", StringComparison.OrdinalIgnoreCase);
+
+                        var gameItem = new Forms.ToolStripMenuItem($"▶ {gameTitle}");
+                        gameItem.Click += (s, e) =>
+                        {
+                            Dispatcher.Invoke(() =>
+                            {
+                                LaunchGameFromTray(exe);
+                            });
+                        };
+                        menu.Items.Add(gameItem);
+                    }
+                }
+                else
+                {
+                    menu.Items.Add(new Forms.ToolStripMenuItem(LocalizationManager.Get("TrayNoRecent")) { Enabled = false });
+                }
+
+                menu.Items.Add(new Forms.ToolStripSeparator());
+
+                // 3. Durdur
+                var stopItem = new Forms.ToolStripMenuItem(LocalizationManager.Get("TrayStopCurrent"));
+                stopItem.Enabled = _isPlaying;
+                stopItem.Click += (s, e) =>
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        BtnStop_Click(this, new RoutedEventArgs());
+                    });
+                };
+                menu.Items.Add(stopItem);
+
+                menu.Items.Add(new Forms.ToolStripSeparator());
+
+                // 4. Çıkış
+                var exitItem = new Forms.ToolStripMenuItem(LocalizationManager.Get("TrayExit"));
+                exitItem.Click += (s, e) =>
+                {
+                    _isExplicitExit = true;
+                    GhostProcessManager.StopGame();
+                    DisposeSystemTray();
+                    Application.Current.Shutdown();
+                };
+                menu.Items.Add(exitItem);
+
+                _notifyIcon.ContextMenuStrip = menu;
+            }
+            catch { }
+        }
+
+        private void LaunchGameFromTray(string exeName)
+        {
+            var target = _allGames.FirstOrDefault(g => g.ExeName.Equals(exeName, StringComparison.OrdinalIgnoreCase))
+                         ?? new GameItem { ExeName = exeName, Title = exeName.Replace(".exe", "", StringComparison.OrdinalIgnoreCase) };
+
+            SelectGame(target);
+            BtnStart_Click(this, new RoutedEventArgs());
+        }
+
+        public void BringWindowToFront()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                Show();
+                if (WindowState == WindowState.Minimized)
+                {
+                    WindowState = WindowState.Normal;
+                }
+                Activate();
+                Focus();
+            });
+        }
+
+        private void DisposeSystemTray()
+        {
+            try
+            {
+                if (_notifyIcon != null)
+                {
+                    _notifyIcon.Visible = false;
+                    _notifyIcon.Dispose();
+                    _notifyIcon = null;
+                }
+            }
+            catch { }
+        }
+        #endregion
 
         private void LinkTwitter_Click(object sender, RoutedEventArgs e) => OpenUrl("https://x.com/HaYTo");
         private void LinkGithub_Click(object sender, RoutedEventArgs e) => OpenUrl("https://github.com/HaYToKoRaZ/FakeLord");

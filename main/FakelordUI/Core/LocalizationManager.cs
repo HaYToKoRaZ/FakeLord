@@ -65,6 +65,32 @@ namespace FakelordUI.Core
             { "ToastNewVersion", ("Yeni FakeLord sürümü mevcut! ({0}) İndirmek için tıklayın.", "New FakeLord version available! ({0}) Click to download.") },
             { "TooltipNewVersion", ("Yeni sürüm mevcut ({0})! GitHub'dan indirmek için tıklayın.", "New version available ({0})! Click to download from GitHub.") },
             { "ToastGameStarted", ("'{0}' Discord'da aktif edildi!", "'{0}' is now active on Discord!") },
+
+            // Ayarlar Penceresi & Sistem Tepsisi
+            { "SettingsTitle", ("Ayarlar", "Settings") },
+            { "SettingsBtnTooltip", ("Ayarlar & Tercihler", "Settings & Preferences") },
+            { "SettingsGeneral", ("Genel Tercihler", "General Preferences") },
+            { "SettingsAppearance", ("Görünüm & Tema", "Appearance & Theme") },
+            { "SettingsSystemTray", ("Sistem Tepsisi (Tray)", "System Tray") },
+            { "SettingsEnableTray", ("Sistem Tepsisi (Tray) simgesini etkinleştir", "Enable System Tray icon") },
+            { "SettingsEnableTrayDesc", ("Arka planda çalışması için sistem tepsisinde simge gösterir", "Shows an icon in the tray to run in the background") },
+            { "SettingsMinimizeToTray", ("Kapatıldığında tepsiye küçült", "Minimize to tray on close") },
+            { "SettingsMinimizeToTrayDesc", ("Çıkış yapmadan pencereyi tepsiye gizler", "Hides window to tray instead of quitting") },
+            { "SettingsStartWithWindows", ("Windows ile birlikte başlat", "Start with Windows") },
+            { "SettingsStartWithWindowsDesc", ("Bilgisayar açıldığında FakeLord otomatik başlasın", "Automatically launch FakeLord when computer boots") },
+            { "SettingsStartMinimized", ("Küçültülmüş olarak başlat", "Start minimized") },
+            { "SettingsStartMinimizedDesc", ("Açılışta pencereyi ekrana getirmeden tepside bekletir", "Keep in tray without showing main window on launch") },
+            { "SettingsAutoFetchDiscord", ("Açılışta Discord kataloğunu otomatik tara", "Auto-fetch Discord games catalog on startup") },
+            { "SettingsAutoFetchDiscordDesc", ("Yeni eklenen oyunları otomatik olarak listeye dahil eder", "Automatically pulls latest game definitions") },
+            { "SettingsSave", ("Kaydet & Uygula", "Save & Apply") },
+            { "SettingsSavedToast", ("Ayarlar başarıyla kaydedildi!", "Settings saved successfully!") },
+
+            // Tray Menü
+            { "TrayShow", ("Pencereyi Göster", "Show FakeLord") },
+            { "TrayRecentGames", ("Son Oynanan Oyunlar:", "Recent Games:") },
+            { "TrayNoRecent", ("(Henüz oyun oynanmadı)", "(No recent games)") },
+            { "TrayStopCurrent", ("⏹ Aktif Oyunu Durdur", "⏹ Stop Active Game") },
+            { "TrayExit", ("Çıkış", "Exit") },
         };
 
         public static string Get(string key, params object[] args)

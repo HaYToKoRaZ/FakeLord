@@ -4,9 +4,10 @@
         Title="Fakelord" 
         Icon="icon.png"
         Height="670" Width="740"
+        MinWidth="680" MinHeight="550"
         WindowStartupLocation="CenterScreen"
         Background="#0A0C10" Foreground="#F3F4F6"
-        FontFamily="Segoe UI, Inter" ResizeMode="CanMinimize"
+        FontFamily="Segoe UI, Inter" ResizeMode="CanResizeWithGrip"
         x:Name="RootWindow">
 
     <Window.Resources>
@@ -216,6 +217,20 @@
                     <Button x:Name="BtnRefreshDiscord" Content="🔄" ToolTip="Discord Kataloğunu Güncelle"
                             Background="#161B22" Foreground="#C9D1D9" BorderBrush="#30363D" BorderThickness="1" 
                             Padding="10,6" FontSize="12" FontWeight="Medium" Cursor="Hand" Click="BtnRefreshDiscord_Click">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" 
+                                        BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <!-- Ayarlar Butonu -->
+                    <Button x:Name="BtnSettings" Content="⚙️" ToolTip="Ayarlar &amp; Tercihler"
+                            Background="#161B22" Foreground="#C9D1D9" BorderBrush="#30363D" BorderThickness="1" 
+                            Padding="10,6" FontSize="12" FontWeight="Medium" Cursor="Hand" Click="BtnSettings_Click" Margin="6,0,0,0">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" 
@@ -607,6 +622,166 @@
                         </ControlTemplate>
                     </Button.Template>
                 </Button>
+            </Grid>
+        </Border>
+    </Grid>
+
+    <!-- 8. AYARLAR (SETTINGS) MODAL OVERLAY -->
+    <Grid x:Name="SettingsModalOverlay" Visibility="Collapsed" Background="#CC05070A" Panel.ZIndex="1000"
+          MouseDown="SettingsModalOverlay_MouseDown">
+        <Border x:Name="SettingsCardBorder" Width="530" Background="#0F141F" CornerRadius="16" BorderBrush="#252F44" BorderThickness="1"
+                Padding="22" VerticalAlignment="Center" HorizontalAlignment="Center"
+                MouseDown="SettingsCard_MouseDown">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/> <!-- 0: Header -->
+                    <RowDefinition Height="*"/>    <!-- 1: Body Options -->
+                    <RowDefinition Height="Auto"/> <!-- 2: Footer Actions -->
+                </Grid.RowDefinitions>
+
+                <!-- 0: Header -->
+                <Grid Grid.Row="0" Margin="0,0,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Width="38" Height="38" CornerRadius="10" Margin="0,0,12,0" Background="#161B26">
+                            <TextBlock Text="⚙️" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock x:Name="TxtSettingsHeaderTitle" Text="AYARLAR &amp; TERCİHLER" FontSize="16" FontWeight="Bold" Foreground="#FFFFFF"/>
+                            <TextBlock x:Name="TxtSettingsHeaderDesc" Text="Sistem tepsisi, başlangıç ve tema yapılandırması" FontSize="11.5" Foreground="#8B949E" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Close (X) Button -->
+                    <Button Grid.Column="1" Content="✕" Width="28" Height="28" Background="#1A202C" Foreground="#94A3B8"
+                            BorderThickness="0" Cursor="Hand" Click="BtnCloseSettings_Click" FontSize="13" FontWeight="Bold">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}" CornerRadius="14">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </Grid>
+
+                <!-- 1: Body Options -->
+                <StackPanel Grid.Row="1" Margin="0,0,0,16">
+                    <!-- Tema Seçimi Kartı -->
+                    <Border Background="#141924" CornerRadius="10" Padding="14,12" Margin="0,0,0,10" BorderBrush="#202838" BorderThickness="1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock x:Name="TxtSettingsThemeTitle" Text="🎨 Renk Teması" FontSize="12.5" FontWeight="SemiBold" Foreground="#FFFFFF"/>
+                                <TextBlock x:Name="TxtSettingsThemeDesc" Text="Arayüzün renk paletini ve vurgularını değiştirin" FontSize="11" Foreground="#8B949E" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            <Border Grid.Column="1" Background="#1A2234" CornerRadius="8" BorderBrush="#2E3A52" BorderThickness="1" Width="170">
+                                <ComboBox x:Name="ComboSettingsTheme" Background="Transparent" Foreground="#F0F6FC" BorderThickness="0"
+                                          Padding="8,5" FontSize="11.5" FontWeight="SemiBold" Cursor="Hand" VerticalAlignment="Center"
+                                          SelectionChanged="ComboSettingsTheme_SelectionChanged"/>
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <!-- Sistem Tepsisi (Tray) Etkinleştir -->
+                    <Border Background="#141924" CornerRadius="10" Padding="14,10" Margin="0,0,0,10" BorderBrush="#202838" BorderThickness="1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock x:Name="TxtSettingsTrayTitle" Text="🔔 Sistem Tepsisi (System Tray) Simgesi" FontSize="12.5" FontWeight="SemiBold" Foreground="#FFFFFF"/>
+                                <TextBlock x:Name="TxtSettingsTrayDesc" Text="Arka planda çalışırken saatin yanında simge gösterir" FontSize="11" Foreground="#8B949E" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            <CheckBox Grid.Column="1" x:Name="ChkEnableTray" IsChecked="True" VerticalAlignment="Center" Cursor="Hand"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Tepsiye Küçült (Minimize to Tray on close) -->
+                    <Border Background="#141924" CornerRadius="10" Padding="14,10" Margin="0,0,0,10" BorderBrush="#202838" BorderThickness="1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock x:Name="TxtSettingsMinToTrayTitle" Text="🔽 Kapatıldığında Tepsiye Küçült" FontSize="12.5" FontWeight="SemiBold" Foreground="#FFFFFF"/>
+                                <TextBlock x:Name="TxtSettingsMinToTrayDesc" Text="Pencereyi kapattığınızda oyun kesilmez, tepside çalışır" FontSize="11" Foreground="#8B949E" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            <CheckBox Grid.Column="1" x:Name="ChkMinimizeToTray" IsChecked="True" VerticalAlignment="Center" Cursor="Hand"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Windows ile Birlikte Başlat -->
+                    <Border Background="#141924" CornerRadius="10" Padding="14,10" Margin="0,0,0,10" BorderBrush="#202838" BorderThickness="1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock x:Name="TxtSettingsStartupTitle" Text="🚀 Windows ile Birlikte Başlat" FontSize="12.5" FontWeight="SemiBold" Foreground="#FFFFFF"/>
+                                <TextBlock x:Name="TxtSettingsStartupDesc" Text="Bilgisayar açıldığında FakeLord otomatik olarak çalışsın" FontSize="11" Foreground="#8B949E" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            <CheckBox Grid.Column="1" x:Name="ChkStartWithWindows" IsChecked="False" VerticalAlignment="Center" Cursor="Hand"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Açılışta Küçültülmüş Başlat -->
+                    <Border Background="#141924" CornerRadius="10" Padding="14,10" BorderBrush="#202838" BorderThickness="1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock x:Name="TxtSettingsStartMinTitle" Text="🔕 Açılışta Tepsiye Gizlenmiş Başlat" FontSize="12.5" FontWeight="SemiBold" Foreground="#FFFFFF"/>
+                                <TextBlock x:Name="TxtSettingsStartMinDesc" Text="Uygulama açıldığında ekrana gelmez, sessizce tepside bekler" FontSize="11" Foreground="#8B949E" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            <CheckBox Grid.Column="1" x:Name="ChkStartMinimized" IsChecked="False" VerticalAlignment="Center" Cursor="Hand"/>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+
+                <!-- 2: Footer Actions -->
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0" Margin="0,0,8,0" x:Name="BtnSettingsCancel" Content="İptal" Background="#202738" Foreground="#94A3B8"
+                            BorderThickness="0" Height="36" FontSize="12" FontWeight="SemiBold" Cursor="Hand"
+                            Click="BtnCloseSettings_Click">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <Button Grid.Column="1" Width="170" x:Name="BtnSettingsSave" Content="💾 Kaydet &amp; Uygula" Background="#5865F2" Foreground="#FFFFFF"
+                            BorderThickness="0" Height="36" FontSize="12" FontWeight="SemiBold" Cursor="Hand"
+                            Click="BtnSaveSettings_Click">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </Grid>
             </Grid>
         </Border>
     </Grid>
