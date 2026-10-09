@@ -1626,7 +1626,7 @@ namespace FakelordUI
                 if (string.IsNullOrWhiteSpace(tagName)) return;
 
                 string cleanRemote = tagName.Trim().TrimStart('v', 'V');
-                Version currentVer = new Version(1, 2, 0);
+                Version currentVer = new Version(1, 3, 0);
 
                 if (Version.TryParse(cleanRemote, out var remoteVer) || 
                     Version.TryParse(cleanRemote + ".0", out remoteVer))
